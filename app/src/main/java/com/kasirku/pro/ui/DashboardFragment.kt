@@ -18,6 +18,7 @@ import com.kasirku.pro.R
 import com.kasirku.pro.adapter.TransactionAdapter
 import com.kasirku.pro.databinding.FragmentDashboardBinding
 import com.kasirku.pro.util.CurrencyFormatter
+import com.kasirku.pro.util.GreetingGenerator
 import com.kasirku.pro.util.SessionManager
 import com.kasirku.pro.viewmodel.AuthViewModel
 import com.kasirku.pro.viewmodel.DashboardViewModel
@@ -40,7 +41,7 @@ class DashboardFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         sessionManager = SessionManager(requireContext())
 
-        binding.tvWelcome.text = "Halo, ${sessionManager.getUserName()} (${sessionManager.getRoleName()})"
+        binding.tvWelcome.text = GreetingGenerator.generate()
 
         binding.btnLogout.setOnClickListener {
             authViewModel.logout()
@@ -84,6 +85,10 @@ class DashboardFragment : Fragment() {
 
         dashboardViewModel.monthlySales.observe(viewLifecycleOwner) {
             binding.tvMonthlySales.text = CurrencyFormatter.formatSimple(it)
+        }
+
+        dashboardViewModel.monthlyTransactionCount.observe(viewLifecycleOwner) {
+            binding.tvMonthlyCount.text = "$it transaksi"
         }
 
         dashboardViewModel.weeklySalesChart.observe(viewLifecycleOwner) { dailySales ->

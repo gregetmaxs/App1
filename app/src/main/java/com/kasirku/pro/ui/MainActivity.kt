@@ -51,7 +51,6 @@ class MainActivity : AppCompatActivity() {
         val menu = binding.bottomNavigation.menu
         menu.findItem(R.id.nav_dashboard)?.isVisible = true
         menu.findItem(R.id.nav_pos)?.isVisible = sessionManager.canAccessPos()
-        menu.findItem(R.id.nav_items)?.isVisible = sessionManager.canAccessItemManagement()
         menu.findItem(R.id.nav_transactions)?.isVisible = sessionManager.canAccessPos() || sessionManager.canAccessReport()
         menu.findItem(R.id.nav_more)?.isVisible = true
     }

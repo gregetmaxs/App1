@@ -58,7 +58,7 @@ class PosFragment : Fragment() {
     }
 
     private fun setupAdapters() {
-        val spanCount = resources.getDimension(R.dimen.item_grid_columns).toInt()
+        val spanCount = resources.getInteger(R.integer.item_grid_columns)
 
         itemAdapter = ItemGridAdapter { item ->
             viewModel.addToCart(item)

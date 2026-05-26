@@ -32,7 +32,7 @@ class ItemListFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        val spanCount = resources.getDimension(R.dimen.item_grid_columns).toInt()
+        val spanCount = resources.getInteger(R.integer.item_grid_columns)
 
         adapter = ItemGridAdapter { item ->
             val bundle = Bundle().apply { putString("itemId", item.id) }

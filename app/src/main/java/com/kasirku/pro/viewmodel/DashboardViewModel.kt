@@ -27,6 +27,9 @@ class DashboardViewModel(application: Application) : AndroidViewModel(applicatio
     private val _monthlySales = MutableLiveData<Double>()
     val monthlySales: LiveData<Double> = _monthlySales
 
+    private val _monthlyTransactionCount = MutableLiveData<Int>()
+    val monthlyTransactionCount: LiveData<Int> = _monthlyTransactionCount
+
     private val _weeklySalesChart = MutableLiveData<List<DailySales>>()
     val weeklySalesChart: LiveData<List<DailySales>> = _weeklySalesChart
 
@@ -43,6 +46,7 @@ class DashboardViewModel(application: Application) : AndroidViewModel(applicatio
 
             val monthStart = DateUtils.getStartOfMonth()
             _monthlySales.value = transactionRepository.getTotalSalesByDateRange(monthStart, todayEnd) ?: 0.0
+            _monthlyTransactionCount.value = transactionRepository.getSalesCountByDateRange(monthStart, todayEnd)
 
             val dailySales = mutableListOf<DailySales>()
             val dayNames = arrayOf("Min", "Sen", "Sel", "Rab", "Kam", "Jum", "Sab")

@@ -28,7 +28,7 @@ data class Role(
         fun createDefaultRoles(): List<Role> = listOf(
             Role(
                 id = "role_admin",
-                name = "Admin/Owner",
+                name = "Admin",
                 canAccessPos = true,
                 canAccessItemManagement = true,
                 canAccessPurchase = true,

@@ -8,184 +8,342 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:padding="@dimen/spacing_md">
+        android:orientation="vertical">
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Menu Lainnya"
-            android:textColor="@color/text_primary"
-            android:textSize="@dimen/text_title"
-            android:textStyle="bold" />
-
-        <androidx.cardview.widget.CardView
-            android:id="@+id/cardReport"
+        <!-- Profile Header -->
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/spacing_md"
-            android:foreground="?attr/selectableItemBackground"
-            app:cardCornerRadius="@dimen/card_radius">
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:gravity="center_vertical"
-                android:padding="@dimen/spacing_md">
-                <TextView
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="@string/report"
-                    android:textSize="@dimen/text_subtitle" />
-            </LinearLayout>
-        </androidx.cardview.widget.CardView>
+            android:background="@color/primary"
+            android:gravity="center"
+            android:orientation="vertical"
+            android:paddingHorizontal="@dimen/spacing_md"
+            android:paddingTop="@dimen/spacing_xl"
+            android:paddingBottom="@dimen/spacing_lg">
 
-        <androidx.cardview.widget.CardView
-            android:id="@+id/cardPurchase"
+            <ImageView
+                android:layout_width="72dp"
+                android:layout_height="72dp"
+                android:background="@drawable/bg_rounded_white"
+                android:contentDescription="Profile"
+                android:padding="16dp"
+                android:src="@drawable/ic_nav_profile" />
+
+            <TextView
+                android:id="@+id/tvProfileName"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/spacing_sm"
+                android:text="Boss"
+                android:textColor="@android:color/white"
+                android:textSize="@dimen/text_title"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/tvProfileRole"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="2dp"
+                android:text="Owner"
+                android:textColor="@color/primary_light"
+                android:textSize="@dimen/text_body" />
+            <TextView
+                android:id="@+id/tvLicenseInfo"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:textColor="@color/primary_light"
+                android:textSize="12sp"
+                android:visibility="gone" />
+        </LinearLayout>
+
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/spacing_sm"
-            android:foreground="?attr/selectableItemBackground"
-            app:cardCornerRadius="@dimen/card_radius">
-            <LinearLayout
+            android:orientation="vertical"
+            android:padding="@dimen/spacing_md">
+
+            <!-- Item Produk -->
+            <androidx.cardview.widget.CardView
+                android:id="@+id/cardItems"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:gravity="center_vertical"
-                android:padding="@dimen/spacing_md">
-                <TextView
-                    android:layout_width="0dp"
+                android:foreground="?attr/selectableItemBackground"
+                app:cardCornerRadius="@dimen/card_radius"
+                app:cardElevation="1dp">
+                <LinearLayout
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="@string/purchase"
-                    android:textSize="@dimen/text_subtitle" />
-            </LinearLayout>
-        </androidx.cardview.widget.CardView>
+                    android:gravity="center_vertical"
+                    android:padding="@dimen/spacing_md">
+                    <ImageView
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:src="@drawable/ic_nav_items"
+                        android:contentDescription="Items"
+                        app:tint="@color/primary" />
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="@dimen/spacing_md"
+                        android:layout_weight="1"
+                        android:text="@string/items"
+                        android:textSize="@dimen/text_subtitle" />
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
 
-        <androidx.cardview.widget.CardView
-            android:id="@+id/cardDelivery"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/spacing_sm"
-            android:foreground="?attr/selectableItemBackground"
-            app:cardCornerRadius="@dimen/card_radius">
-            <LinearLayout
+            <!-- Laporan -->
+            <androidx.cardview.widget.CardView
+                android:id="@+id/cardReport"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:gravity="center_vertical"
-                android:padding="@dimen/spacing_md">
-                <TextView
-                    android:layout_width="0dp"
+                android:layout_marginTop="@dimen/spacing_sm"
+                android:foreground="?attr/selectableItemBackground"
+                app:cardCornerRadius="@dimen/card_radius"
+                app:cardElevation="1dp">
+                <LinearLayout
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="@string/delivery"
-                    android:textSize="@dimen/text_subtitle" />
-            </LinearLayout>
-        </androidx.cardview.widget.CardView>
+                    android:gravity="center_vertical"
+                    android:padding="@dimen/spacing_md">
+                    <ImageView
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:src="@android:drawable/ic_menu_sort_by_size"
+                        android:contentDescription="Report"
+                        app:tint="@color/primary" />
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="@dimen/spacing_md"
+                        android:layout_weight="1"
+                        android:text="@string/report"
+                        android:textSize="@dimen/text_subtitle" />
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
 
-        <androidx.cardview.widget.CardView
-            android:id="@+id/cardCustomers"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/spacing_sm"
-            android:foreground="?attr/selectableItemBackground"
-            app:cardCornerRadius="@dimen/card_radius">
-            <LinearLayout
+            <!-- Pembelian Stok -->
+            <androidx.cardview.widget.CardView
+                android:id="@+id/cardPurchase"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:gravity="center_vertical"
-                android:padding="@dimen/spacing_md">
-                <TextView
-                    android:layout_width="0dp"
+                android:layout_marginTop="@dimen/spacing_sm"
+                android:foreground="?attr/selectableItemBackground"
+                app:cardCornerRadius="@dimen/card_radius"
+                app:cardElevation="1dp">
+                <LinearLayout
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="@string/customers"
-                    android:textSize="@dimen/text_subtitle" />
-            </LinearLayout>
-        </androidx.cardview.widget.CardView>
+                    android:gravity="center_vertical"
+                    android:padding="@dimen/spacing_md">
+                    <ImageView
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:src="@android:drawable/ic_menu_add"
+                        android:contentDescription="Purchase"
+                        app:tint="@color/primary" />
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="@dimen/spacing_md"
+                        android:layout_weight="1"
+                        android:text="@string/purchase"
+                        android:textSize="@dimen/text_subtitle" />
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
 
-        <androidx.cardview.widget.CardView
-            android:id="@+id/cardEmployees"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/spacing_sm"
-            android:foreground="?attr/selectableItemBackground"
-            app:cardCornerRadius="@dimen/card_radius">
-            <LinearLayout
+            <!-- Pengiriman -->
+            <androidx.cardview.widget.CardView
+                android:id="@+id/cardDelivery"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:gravity="center_vertical"
-                android:padding="@dimen/spacing_md">
-                <TextView
-                    android:layout_width="0dp"
+                android:layout_marginTop="@dimen/spacing_sm"
+                android:foreground="?attr/selectableItemBackground"
+                app:cardCornerRadius="@dimen/card_radius"
+                app:cardElevation="1dp">
+                <LinearLayout
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="@string/employees"
-                    android:textSize="@dimen/text_subtitle" />
-            </LinearLayout>
-        </androidx.cardview.widget.CardView>
+                    android:gravity="center_vertical"
+                    android:padding="@dimen/spacing_md">
+                    <ImageView
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:src="@android:drawable/ic_menu_send"
+                        android:contentDescription="Delivery"
+                        app:tint="@color/primary" />
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="@dimen/spacing_md"
+                        android:layout_weight="1"
+                        android:text="@string/delivery"
+                        android:textSize="@dimen/text_subtitle" />
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
 
-        <androidx.cardview.widget.CardView
-            android:id="@+id/cardRoles"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/spacing_sm"
-            android:foreground="?attr/selectableItemBackground"
-            app:cardCornerRadius="@dimen/card_radius">
-            <LinearLayout
+            <!-- Customer -->
+            <androidx.cardview.widget.CardView
+                android:id="@+id/cardCustomers"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:gravity="center_vertical"
-                android:padding="@dimen/spacing_md">
-                <TextView
-                    android:layout_width="0dp"
+                android:layout_marginTop="@dimen/spacing_sm"
+                android:foreground="?attr/selectableItemBackground"
+                app:cardCornerRadius="@dimen/card_radius"
+                app:cardElevation="1dp">
+                <LinearLayout
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="@string/roles"
-                    android:textSize="@dimen/text_subtitle" />
-            </LinearLayout>
-        </androidx.cardview.widget.CardView>
+                    android:gravity="center_vertical"
+                    android:padding="@dimen/spacing_md">
+                    <ImageView
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:src="@android:drawable/ic_menu_my_calendar"
+                        android:contentDescription="Customers"
+                        app:tint="@color/primary" />
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="@dimen/spacing_md"
+                        android:layout_weight="1"
+                        android:text="@string/customers"
+                        android:textSize="@dimen/text_subtitle" />
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
 
-        <androidx.cardview.widget.CardView
-            android:id="@+id/cardPriceCheck"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/spacing_sm"
-            android:foreground="?attr/selectableItemBackground"
-            app:cardCornerRadius="@dimen/card_radius">
-            <LinearLayout
+            <!-- Karyawan -->
+            <androidx.cardview.widget.CardView
+                android:id="@+id/cardEmployees"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:gravity="center_vertical"
-                android:padding="@dimen/spacing_md">
-                <TextView
-                    android:layout_width="0dp"
+                android:layout_marginTop="@dimen/spacing_sm"
+                android:foreground="?attr/selectableItemBackground"
+                app:cardCornerRadius="@dimen/card_radius"
+                app:cardElevation="1dp">
+                <LinearLayout
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="@string/price_check"
-                    android:textSize="@dimen/text_subtitle" />
-            </LinearLayout>
-        </androidx.cardview.widget.CardView>
+                    android:gravity="center_vertical"
+                    android:padding="@dimen/spacing_md">
+                    <ImageView
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:src="@android:drawable/ic_menu_myplaces"
+                        android:contentDescription="Employees"
+                        app:tint="@color/primary" />
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="@dimen/spacing_md"
+                        android:layout_weight="1"
+                        android:text="@string/employees"
+                        android:textSize="@dimen/text_subtitle" />
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
 
-        <androidx.cardview.widget.CardView
-            android:id="@+id/cardSettings"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/spacing_sm"
-            android:foreground="?attr/selectableItemBackground"
-            app:cardCornerRadius="@dimen/card_radius">
-            <LinearLayout
+            <!-- Kelola Roles -->
+            <androidx.cardview.widget.CardView
+                android:id="@+id/cardRoles"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:gravity="center_vertical"
-                android:padding="@dimen/spacing_md">
-                <TextView
-                    android:layout_width="0dp"
+                android:layout_marginTop="@dimen/spacing_sm"
+                android:foreground="?attr/selectableItemBackground"
+                app:cardCornerRadius="@dimen/card_radius"
+                app:cardElevation="1dp">
+                <LinearLayout
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="@string/settings"
-                    android:textSize="@dimen/text_subtitle" />
-            </LinearLayout>
-        </androidx.cardview.widget.CardView>
+                    android:gravity="center_vertical"
+                    android:padding="@dimen/spacing_md">
+                    <ImageView
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:src="@android:drawable/ic_menu_manage"
+                        android:contentDescription="Roles"
+                        app:tint="@color/primary" />
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="@dimen/spacing_md"
+                        android:layout_weight="1"
+                        android:text="@string/roles"
+                        android:textSize="@dimen/text_subtitle" />
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
 
+            <!-- Cek Harga -->
+            <androidx.cardview.widget.CardView
+                android:id="@+id/cardPriceCheck"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/spacing_sm"
+                android:foreground="?attr/selectableItemBackground"
+                app:cardCornerRadius="@dimen/card_radius"
+                app:cardElevation="1dp">
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_vertical"
+                    android:padding="@dimen/spacing_md">
+                    <ImageView
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:src="@android:drawable/ic_menu_info_details"
+                        android:contentDescription="Price Check"
+                        app:tint="@color/primary" />
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="@dimen/spacing_md"
+                        android:layout_weight="1"
+                        android:text="@string/price_check"
+                        android:textSize="@dimen/text_subtitle" />
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+
+            <!-- Pengaturan -->
+            <androidx.cardview.widget.CardView
+                android:id="@+id/cardSettings"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/spacing_sm"
+                android:foreground="?attr/selectableItemBackground"
+                app:cardCornerRadius="@dimen/card_radius"
+                app:cardElevation="1dp">
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_vertical"
+                    android:padding="@dimen/spacing_md">
+                    <ImageView
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:src="@android:drawable/ic_menu_preferences"
+                        android:contentDescription="Settings"
+                        app:tint="@color/primary" />
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="@dimen/spacing_md"
+                        android:layout_weight="1"
+                        android:text="@string/settings"
+                        android:textSize="@dimen/text_subtitle" />
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+
+            <!-- Logout -->
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnLogout"
+                style="@style/Widget.Material3.Button.OutlinedButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/spacing_lg"
+                android:text="@string/logout"
+                android:textColor="@color/error"
+                app:cornerRadius="@dimen/card_radius"
+                app:strokeColor="@color/error" />
+
+        </LinearLayout>
     </LinearLayout>
 </ScrollView>

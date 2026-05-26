@@ -7,6 +7,7 @@ import com.kasirku.pro.KasirKuApp
 import com.kasirku.pro.data.entity.Role
 import com.kasirku.pro.data.entity.User
 import com.kasirku.pro.data.repository.UserRepository
+import com.kasirku.pro.util.LicenseManager
 import com.kasirku.pro.util.SessionManager
 import kotlinx.coroutines.launch
 
@@ -20,6 +21,9 @@ class AuthViewModel(application: Application) : AndroidViewModel(application) {
 
     private val _loginResult = MutableLiveData<Result<User>>()
     val loginResult: LiveData<Result<User>> = _loginResult
+
+    private val _licenseStatus = MutableLiveData<LicenseManager.LicenseStatus>()
+    val licenseStatus: LiveData<LicenseManager.LicenseStatus> = _licenseStatus
 
     private val _registerResult = MutableLiveData<Result<User>>()
     val registerResult: LiveData<Result<User>> = _registerResult
@@ -132,6 +136,13 @@ class AuthViewModel(application: Application) : AndroidViewModel(application) {
     fun deleteUser(user: User) {
         viewModelScope.launch {
             userRepository.update(user.copy(isActive = false, updatedAt = System.currentTimeMillis()))
+        }
+    }
+
+    fun checkLicense() {
+        viewModelScope.launch {
+            val status = LicenseManager.checkLicense(getApplication())
+            _licenseStatus.postValue(status)
         }
     }
 

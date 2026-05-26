@@ -2,22 +2,18 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <item
         android:id="@+id/nav_dashboard"
-        android:icon="@android:drawable/ic_menu_today"
+        android:icon="@drawable/ic_nav_dashboard"
         android:title="@string/dashboard" />
     <item
         android:id="@+id/nav_pos"
-        android:icon="@android:drawable/ic_menu_agenda"
+        android:icon="@drawable/ic_nav_pos"
         android:title="@string/pos" />
     <item
-        android:id="@+id/nav_items"
-        android:icon="@android:drawable/ic_menu_gallery"
-        android:title="@string/items" />
-    <item
         android:id="@+id/nav_transactions"
-        android:icon="@android:drawable/ic_menu_recent_history"
-        android:title="@string/transactions" />
+        android:icon="@drawable/ic_nav_history"
+        android:title="Riwayat" />
     <item
         android:id="@+id/nav_more"
-        android:icon="@android:drawable/ic_menu_more"
-        android:title="Lainnya" />
+        android:icon="@drawable/ic_nav_profile"
+        android:title="Profile" />
 </menu>
