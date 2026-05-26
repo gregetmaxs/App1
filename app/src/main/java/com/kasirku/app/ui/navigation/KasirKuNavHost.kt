@@ -1,6 +1,7 @@
 package com.kasirku.app.ui.navigation
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -17,6 +18,20 @@ fun KasirKuNavHost(
 ) {
     val authState by authViewModel.uiState.collectAsState()
     val navController = rememberNavController()
+
+    LaunchedEffect(authState.isLoggedIn) {
+        if (authState.isLoggedIn) {
+            navController.navigate("main") {
+                popUpTo(Screen.Login.route) { inclusive = true }
+            }
+        } else {
+            if (navController.currentBackStackEntry?.destination?.route == "main") {
+                navController.navigate(Screen.Login.route) {
+                    popUpTo("main") { inclusive = true }
+                }
+            }
+        }
+    }
 
     NavHost(
         navController = navController,
@@ -37,18 +52,6 @@ fun KasirKuNavHost(
                 license = authState.license,
                 onLogout = { authViewModel.logout() }
             )
-        }
-    }
-
-    // Navigate on auth state changes
-    if (authState.isLoggedIn && navController.currentDestination?.route == Screen.Login.route) {
-        navController.navigate("main") {
-            popUpTo(Screen.Login.route) { inclusive = true }
-        }
-    }
-    if (!authState.isLoggedIn && navController.currentDestination?.route == "main") {
-        navController.navigate(Screen.Login.route) {
-            popUpTo("main") { inclusive = true }
         }
     }
 }

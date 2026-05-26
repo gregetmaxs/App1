@@ -1,17 +1,29 @@
 package com.kasirku.app.ui.screen.home
 
+import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.animation.core.tween
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBars
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.windowInsetsPadding
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.PointOfSale
-import androidx.compose.material.icons.filled.Receipt
+import androidx.compose.material.icons.outlined.History
 import androidx.compose.material.icons.outlined.Home
 import androidx.compose.material.icons.outlined.Person
 import androidx.compose.material.icons.outlined.PointOfSale
-import androidx.compose.material.icons.outlined.Receipt
 import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.NavigationBarItemDefaults
@@ -24,8 +36,12 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.kasirku.app.ui.screen.history.HistoryScreen
 import com.kasirku.app.ui.screen.master.AddEmployeeScreen
@@ -36,13 +52,14 @@ import com.kasirku.app.ui.screen.master.ProductListScreen
 import com.kasirku.app.ui.screen.master.SupplierScreen
 import com.kasirku.app.ui.screen.pos.PosScreen
 import com.kasirku.app.ui.screen.profile.ProfileScreen
+import com.kasirku.app.ui.theme.DarkBackground
 import com.kasirku.app.ui.theme.DarkSurface
 import com.kasirku.app.ui.theme.TealPrimary
 import com.kasirku.core.model.License
 import com.kasirku.core.model.Role
 import com.kasirku.core.model.User
 
-data class BottomNavItem(
+data class NavItem(
     val label: String,
     val selectedIcon: ImageVector,
     val unselectedIcon: ImageVector
@@ -55,20 +72,20 @@ fun MainScaffold(
     license: License?,
     onLogout: () -> Unit
 ) {
+    val storeId = user?.storeId ?: ""
+    var selectedTab by rememberSaveable { mutableIntStateOf(0) }
+    var currentSubScreen by rememberSaveable { mutableStateOf<String?>(null) }
+
     val navItems = listOf(
-        BottomNavItem("Home", Icons.Filled.Home, Icons.Outlined.Home),
-        BottomNavItem("POS", Icons.Filled.PointOfSale, Icons.Outlined.PointOfSale),
-        BottomNavItem("Riwayat", Icons.Filled.Receipt, Icons.Outlined.Receipt),
-        BottomNavItem("Profile", Icons.Filled.Person, Icons.Outlined.Person)
+        NavItem("Home", Icons.Filled.Home, Icons.Outlined.Home),
+        NavItem("POS", Icons.Filled.PointOfSale, Icons.Outlined.PointOfSale),
+        NavItem("Riwayat", Icons.Filled.History, Icons.Outlined.History),
+        NavItem("Profile", Icons.Filled.Person, Icons.Outlined.Person)
     )
 
-    var selectedIndex by rememberSaveable { mutableIntStateOf(0) }
-    var currentSubScreen by rememberSaveable { mutableStateOf<String?>(null) }
-    val storeId = user?.storeId ?: ""
-
-    // If in a sub-screen, show it full-screen (no bottom nav)
-    if (currentSubScreen != null) {
-        when (currentSubScreen) {
+    // Sub-screen rendering (full screen, no bottom nav)
+    currentSubScreen?.let { screen ->
+        when (screen) {
             "products" -> ProductListScreen(
                 storeId = storeId,
                 onBack = { currentSubScreen = null },
@@ -100,64 +117,70 @@ fun MainScaffold(
     }
 
     Scaffold(
+        containerColor = DarkBackground,
         bottomBar = {
             NavigationBar(
                 containerColor = DarkSurface,
-                contentColor = MaterialTheme.colorScheme.onSurface
+                tonalElevation = 0.dp,
+                modifier = Modifier
+                    .clip(RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp))
+                    .shadow(8.dp)
             ) {
                 navItems.forEachIndexed { index, item ->
                     NavigationBarItem(
-                        selected = selectedIndex == index,
-                        onClick = { selectedIndex = index },
+                        selected = selectedTab == index,
+                        onClick = { selectedTab = index },
                         icon = {
                             Icon(
-                                imageVector = if (selectedIndex == index) item.selectedIcon else item.unselectedIcon,
-                                contentDescription = item.label
+                                imageVector = if (selectedTab == index) item.selectedIcon else item.unselectedIcon,
+                                contentDescription = item.label,
+                                modifier = Modifier.size(24.dp)
                             )
                         },
                         label = {
                             Text(
                                 text = item.label,
                                 fontSize = 11.sp,
-                                fontWeight = if (selectedIndex == index) FontWeight.SemiBold else FontWeight.Normal
+                                fontWeight = if (selectedTab == index) FontWeight.Bold else FontWeight.Normal
                             )
                         },
                         colors = NavigationBarItemDefaults.colors(
                             selectedIconColor = TealPrimary,
                             selectedTextColor = TealPrimary,
-                            indicatorColor = TealPrimary.copy(alpha = 0.15f)
+                            unselectedIconColor = Color(0xFF8888AA),
+                            unselectedTextColor = Color(0xFF8888AA),
+                            indicatorColor = TealPrimary.copy(alpha = 0.12f)
                         )
                     )
                 }
             }
         }
     ) { paddingValues ->
-        when (selectedIndex) {
-            0 -> HomeScreen(
-                user = user,
-                modifier = Modifier.padding(paddingValues)
-            )
-            1 -> PosScreen(
-                storeId = storeId,
-                userId = user?.id ?: "",
-                userName = user?.fullName?.ifEmpty { "Kasir" } ?: "Kasir",
-                modifier = Modifier.padding(paddingValues)
-            )
-            2 -> HistoryScreen(
-                storeId = storeId,
-                modifier = Modifier.padding(paddingValues)
-            )
-            3 -> ProfileScreen(
-                user = user,
-                role = role,
-                license = license,
-                onLogout = onLogout,
-                onNavigateToProducts = { currentSubScreen = "products" },
-                onNavigateToCategories = { currentSubScreen = "categories" },
-                onNavigateToEmployees = { currentSubScreen = "employees" },
-                onNavigateToSuppliers = { currentSubScreen = "suppliers" },
-                modifier = Modifier.padding(paddingValues)
-            )
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(paddingValues)
+        ) {
+            when (selectedTab) {
+                0 -> HomeScreen(user = user, modifier = Modifier.fillMaxSize())
+                1 -> PosScreen(
+                    storeId = storeId,
+                    userId = user?.id ?: "",
+                    userName = user?.fullName?.ifEmpty { "Kasir" } ?: "Kasir",
+                    modifier = Modifier.fillMaxSize()
+                )
+                2 -> HistoryScreen(storeId = storeId, modifier = Modifier.fillMaxSize())
+                3 -> ProfileScreen(
+                    user = user,
+                    license = license,
+                    onLogout = onLogout,
+                    onNavigateToProducts = { currentSubScreen = "products" },
+                    onNavigateToCategories = { currentSubScreen = "categories" },
+                    onNavigateToEmployees = { currentSubScreen = "employees" },
+                    onNavigateToSuppliers = { currentSubScreen = "suppliers" },
+                    modifier = Modifier.fillMaxSize()
+                )
+            }
         }
     }
 }

@@ -22,8 +22,10 @@ import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Remove
 import androidx.compose.material.icons.filled.Search
@@ -34,23 +36,23 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.FloatingActionButton
-import androidx.compose.material3.Divider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -59,6 +61,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -89,75 +92,97 @@ fun PosScreen(
     val rupiahFormat = remember { NumberFormat.getCurrencyInstance(Locale("id", "ID")) }
     var showCart by remember { mutableStateOf(false) }
 
-    androidx.compose.runtime.LaunchedEffect(storeId) {
+    LaunchedEffect(storeId) {
         if (storeId.isNotEmpty()) posViewModel.init(storeId, userId, userName)
     }
 
-    Box(
-        modifier = modifier
-            .fillMaxSize()
-            .background(DarkBackground)
-    ) {
+    Box(modifier = modifier.background(DarkBackground)) {
         Column(modifier = Modifier.fillMaxSize()) {
-            // Search bar
+            // Search Bar
             OutlinedTextField(
                 value = uiState.searchQuery,
                 onValueChange = { posViewModel.search(it) },
-                placeholder = { Text("Cari produk atau scan barcode...") },
-                leadingIcon = { Icon(Icons.Default.Search, contentDescription = null) },
+                placeholder = { Text("Cari produk atau scan barcode...", color = Color(0xFF6666AA)) },
+                leadingIcon = { Icon(Icons.Default.Search, contentDescription = null, tint = Color(0xFF8888AA)) },
+                trailingIcon = {
+                    if (uiState.searchQuery.isNotEmpty()) {
+                        IconButton(onClick = { posViewModel.search("") }) {
+                            Icon(Icons.Default.Close, contentDescription = null, tint = Color(0xFF8888AA))
+                        }
+                    }
+                },
                 singleLine = true,
                 shape = RoundedCornerShape(16.dp),
                 colors = OutlinedTextFieldDefaults.colors(
-                    focusedBorderColor = TealPrimary,
-                    unfocusedBorderColor = Color(0xFF444466),
                     focusedContainerColor = DarkCard,
-                    unfocusedContainerColor = DarkCard
+                    unfocusedContainerColor = DarkCard,
+                    focusedBorderColor = TealPrimary,
+                    unfocusedBorderColor = Color.Transparent,
+                    focusedTextColor = Color.White,
+                    unfocusedTextColor = Color.White
                 ),
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 16.dp, vertical = 8.dp)
+                    .padding(horizontal = 16.dp, vertical = 12.dp)
             )
 
-            // Category chips
+            // Category Chips
             LazyRow(
                 contentPadding = PaddingValues(horizontal = 16.dp),
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                modifier = Modifier.fillMaxWidth()
             ) {
                 item {
                     FilterChip(
                         selected = uiState.selectedCategoryId == null,
                         onClick = { posViewModel.filterByCategory(null) },
-                        label = { Text("Semua") },
+                        label = { Text("Semua", fontSize = 13.sp) },
                         colors = FilterChipDefaults.filterChipColors(
                             selectedContainerColor = TealPrimary,
-                            selectedLabelColor = Color.White
-                        )
+                            selectedLabelColor = Color.White,
+                            containerColor = DarkCard,
+                            labelColor = Color(0xFFAAAACC)
+                        ),
+                        shape = RoundedCornerShape(12.dp)
                     )
                 }
-                items(uiState.categories) { category ->
+                items(uiState.categories) { cat ->
                     FilterChip(
-                        selected = uiState.selectedCategoryId == category.id,
-                        onClick = { posViewModel.filterByCategory(category.id) },
-                        label = { Text(category.name) },
+                        selected = uiState.selectedCategoryId == cat.id,
+                        onClick = { posViewModel.filterByCategory(cat.id) },
+                        label = { Text(cat.name, fontSize = 13.sp) },
                         colors = FilterChipDefaults.filterChipColors(
                             selectedContainerColor = TealPrimary,
-                            selectedLabelColor = Color.White
-                        )
+                            selectedLabelColor = Color.White,
+                            containerColor = DarkCard,
+                            labelColor = Color(0xFFAAAACC)
+                        ),
+                        shape = RoundedCornerShape(12.dp)
                     )
                 }
             }
 
-            Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(12.dp))
 
-            // Product grid
+            // Product Grid
             if (uiState.products.isEmpty()) {
                 Box(
                     modifier = Modifier
-                        .fillMaxWidth()
+                        .fillMaxSize()
                         .weight(1f),
                     contentAlignment = Alignment.Center
                 ) {
-                    Text("Belum ada produk", color = Color.Gray)
+                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                        Icon(
+                            Icons.Default.ShoppingCart,
+                            contentDescription = null,
+                            tint = Color(0xFF555577),
+                            modifier = Modifier.size(64.dp)
+                        )
+                        Spacer(modifier = Modifier.height(12.dp))
+                        Text("Belum ada produk", color = Color(0xFF7777AA), fontSize = 14.sp)
+                        Text("Tambahkan produk dari menu Profile", color = Color(0xFF555577), fontSize = 12.sp)
+                    }
                 }
             } else {
                 LazyVerticalGrid(
@@ -168,71 +193,65 @@ fun PosScreen(
                     modifier = Modifier.weight(1f)
                 ) {
                     items(uiState.products) { product ->
-                        ProductCard(
-                            product = product,
-                            rupiahFormat = rupiahFormat,
-                            onClick = { posViewModel.addToCart(product) }
-                        )
+                        ProductCard(product, rupiahFormat) {
+                            posViewModel.addToCart(product)
+                        }
                     }
                 }
             }
 
-            // Bottom bar with total
-            if (uiState.cart.isNotEmpty()) {
+            // Bottom Cart Bar
+            AnimatedVisibility(visible = uiState.cartCount > 0) {
                 Card(
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clickable { showCart = true },
                     shape = RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp),
-                    colors = CardDefaults.cardColors(containerColor = DarkSurface)
+                    colors = CardDefaults.cardColors(containerColor = TealPrimary)
                 ) {
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(16.dp),
+                            .padding(horizontal = 20.dp, vertical = 16.dp),
+                        horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Column(modifier = Modifier.weight(1f)) {
-                            Text("${uiState.cartCount} item", color = Color.Gray, fontSize = 12.sp)
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Icon(Icons.Default.ShoppingCart, contentDescription = null, tint = Color.White)
+                            Spacer(modifier = Modifier.width(10.dp))
                             Text(
-                                rupiahFormat.format(uiState.total),
+                                "${uiState.cartCount} item",
                                 color = Color.White,
-                                fontWeight = FontWeight.Bold,
-                                fontSize = 18.sp
+                                fontWeight = FontWeight.SemiBold,
+                                fontSize = 15.sp
                             )
                         }
-                        Button(
-                            onClick = { showCart = true },
-                            shape = RoundedCornerShape(16.dp),
-                            colors = ButtonDefaults.buttonColors(containerColor = TealPrimary)
-                        ) {
-                            Icon(Icons.Default.ShoppingCart, contentDescription = null, modifier = Modifier.size(18.dp))
-                            Spacer(modifier = Modifier.width(8.dp))
-                            Text("Checkout")
-                        }
+                        Text(
+                            rupiahFormat.format(uiState.total),
+                            color = Color.White,
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 18.sp
+                        )
                     }
                 }
             }
         }
 
-        // Cart FAB
-        if (uiState.cart.isNotEmpty()) {
-            BadgedBox(
-                badge = {
-                    Badge(containerColor = ErrorRed) {
-                        Text("${uiState.cartCount}")
-                    }
-                },
-                modifier = Modifier
-                    .align(Alignment.BottomEnd)
-                    .padding(end = 16.dp, bottom = 80.dp)
-            ) {}
-        }
-
-        // Cart bottom sheet
+        // Cart Bottom Sheet
         if (showCart) {
             ModalBottomSheet(
                 onDismissRequest = { showCart = false },
-                sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
-                containerColor = DarkSurface
+                containerColor = DarkSurface,
+                dragHandle = {
+                    Box(
+                        modifier = Modifier
+                            .padding(vertical = 12.dp)
+                            .width(40.dp)
+                            .height(4.dp)
+                            .clip(CircleShape)
+                            .background(Color(0xFF555577))
+                    )
+                }
             ) {
                 CartSheet(
                     cart = uiState.cart,
@@ -240,10 +259,10 @@ fun PosScreen(
                     ppnAmount = uiState.ppnAmount,
                     total = uiState.total,
                     rupiahFormat = rupiahFormat,
-                    onUpdateQuantity = { index, qty -> posViewModel.updateCartQuantity(index, qty) },
+                    onQuantityChange = { i, q -> posViewModel.updateCartQuantity(i, q) },
                     onRemove = { posViewModel.removeFromCart(it) },
-                    onCheckout = { method, paid, delivery ->
-                        posViewModel.checkout(method, paid, delivery)
+                    onCheckout = { paymentMethod, amountPaid, deliveryType ->
+                        posViewModel.checkout(paymentMethod, amountPaid, deliveryType)
                         showCart = false
                     }
                 )
@@ -253,46 +272,64 @@ fun PosScreen(
 }
 
 @Composable
-private fun ProductCard(
-    product: Product,
-    rupiahFormat: NumberFormat,
-    onClick: () -> Unit
-) {
+private fun ProductCard(product: Product, rupiahFormat: NumberFormat, onAdd: () -> Unit) {
     Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clickable { onClick() },
-        shape = RoundedCornerShape(16.dp),
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(14.dp),
         colors = CardDefaults.cardColors(containerColor = DarkCard)
     ) {
         Column(modifier = Modifier.padding(12.dp)) {
-            Text(
-                text = product.name,
-                style = MaterialTheme.typography.bodyMedium,
-                color = Color.White,
-                fontWeight = FontWeight.SemiBold,
-                maxLines = 2,
-                overflow = TextOverflow.Ellipsis
-            )
-            if (product.categoryName.isNotEmpty()) {
+            // Product icon placeholder
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(80.dp)
+                    .clip(RoundedCornerShape(10.dp))
+                    .background(Color(0xFF2A2A50)),
+                contentAlignment = Alignment.Center
+            ) {
                 Text(
-                    text = product.categoryName,
-                    style = MaterialTheme.typography.labelSmall,
-                    color = Color.Gray
+                    text = product.name.take(2).uppercase(),
+                    fontSize = 24.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = TealPrimary
                 )
             }
             Spacer(modifier = Modifier.height(8.dp))
             Text(
-                text = rupiahFormat.format(product.sellPrice),
-                style = MaterialTheme.typography.titleSmall,
-                color = TealPrimary,
-                fontWeight = FontWeight.Bold
+                text = product.name,
+                fontSize = 13.sp,
+                color = Color.White,
+                fontWeight = FontWeight.Medium,
+                maxLines = 2,
+                overflow = TextOverflow.Ellipsis
             )
-            Text(
-                text = "Stok: ${product.stock}",
-                style = MaterialTheme.typography.labelSmall,
-                color = if (product.stock > product.minStock) Color.Gray else ErrorRed
-            )
+            Spacer(modifier = Modifier.height(4.dp))
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = rupiahFormat.format(product.sellPrice),
+                    fontSize = 13.sp,
+                    color = SuccessGreen,
+                    fontWeight = FontWeight.Bold
+                )
+                Box(
+                    modifier = Modifier
+                        .size(28.dp)
+                        .clip(CircleShape)
+                        .background(TealPrimary)
+                        .clickable { onAdd() },
+                    contentAlignment = Alignment.Center
+                ) {
+                    Icon(Icons.Default.Add, contentDescription = "Tambah", tint = Color.White, modifier = Modifier.size(16.dp))
+                }
+            }
+            if (product.stock > 0) {
+                Text("Stok: ${product.stock}", fontSize = 10.sp, color = Color(0xFF8888AA))
+            }
         }
     }
 }
@@ -305,60 +342,93 @@ private fun CartSheet(
     ppnAmount: Long,
     total: Long,
     rupiahFormat: NumberFormat,
-    onUpdateQuantity: (Int, Int) -> Unit,
+    onQuantityChange: (Int, Int) -> Unit,
     onRemove: (Int) -> Unit,
     onCheckout: (String, Long, String) -> Unit
 ) {
     var paymentMethod by remember { mutableStateOf("CASH") }
-    var amountPaid by remember { mutableStateOf("") }
     var deliveryType by remember { mutableStateOf("SELF_PICKUP") }
+    var amountPaid by remember { mutableStateOf("") }
 
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 20.dp, vertical = 8.dp)
+            .padding(horizontal = 20.dp)
+            .padding(bottom = 24.dp)
     ) {
-        Text("Keranjang", style = MaterialTheme.typography.titleLarge, color = Color.White, fontWeight = FontWeight.Bold)
-        Spacer(modifier = Modifier.height(12.dp))
+        Text("Keranjang", fontSize = 20.sp, color = Color.White, fontWeight = FontWeight.Bold)
+        Spacer(modifier = Modifier.height(16.dp))
 
+        // Cart items
         cart.forEachIndexed { index, item ->
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(vertical = 6.dp),
+                    .padding(vertical = 8.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Column(modifier = Modifier.weight(1f)) {
-                    Text(item.displayName, color = Color.White, fontSize = 14.sp, maxLines = 1, overflow = TextOverflow.Ellipsis)
-                    Text(rupiahFormat.format(item.price), color = Color.Gray, fontSize = 12.sp)
+                    Text(item.product.name, fontSize = 14.sp, color = Color.White, fontWeight = FontWeight.Medium)
+                    Text(
+                        rupiahFormat.format(item.product.sellPrice),
+                        fontSize = 12.sp,
+                        color = Color(0xFF9999BB)
+                    )
                 }
+                // Quantity controls
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    IconButton(onClick = { onUpdateQuantity(index, item.quantity - 1) }, modifier = Modifier.size(28.dp)) {
+                    IconButton(
+                        onClick = { onQuantityChange(index, item.quantity - 1) },
+                        modifier = Modifier
+                            .size(30.dp)
+                            .clip(CircleShape)
+                            .background(Color(0xFF333360))
+                    ) {
                         Icon(Icons.Default.Remove, contentDescription = null, tint = Color.White, modifier = Modifier.size(16.dp))
                     }
-                    Text("${item.quantity}", color = Color.White, modifier = Modifier.width(28.dp), textAlign = TextAlign.Center)
-                    IconButton(onClick = { onUpdateQuantity(index, item.quantity + 1) }, modifier = Modifier.size(28.dp)) {
+                    Text(
+                        "${item.quantity}",
+                        modifier = Modifier.width(36.dp),
+                        textAlign = TextAlign.Center,
+                        fontSize = 14.sp,
+                        color = Color.White,
+                        fontWeight = FontWeight.Bold
+                    )
+                    IconButton(
+                        onClick = { onQuantityChange(index, item.quantity + 1) },
+                        modifier = Modifier
+                            .size(30.dp)
+                            .clip(CircleShape)
+                            .background(TealPrimary)
+                    ) {
                         Icon(Icons.Default.Add, contentDescription = null, tint = Color.White, modifier = Modifier.size(16.dp))
                     }
-                    IconButton(onClick = { onRemove(index) }, modifier = Modifier.size(28.dp)) {
-                        Icon(Icons.Default.Delete, contentDescription = null, tint = ErrorRed, modifier = Modifier.size(16.dp))
-                    }
                 }
+                Spacer(modifier = Modifier.width(8.dp))
+                Text(
+                    rupiahFormat.format(item.subtotal),
+                    fontSize = 13.sp,
+                    color = SuccessGreen,
+                    fontWeight = FontWeight.SemiBold
+                )
             }
         }
 
-        Divider(color = Color(0xFF333355), modifier = Modifier.padding(vertical = 8.dp))
+        Divider(color = Color(0xFF333355), modifier = Modifier.padding(vertical = 12.dp))
 
+        // Totals
         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-            Text("Subtotal", color = Color.Gray, fontSize = 13.sp)
+            Text("Subtotal", color = Color(0xFF9999BB), fontSize = 13.sp)
             Text(rupiahFormat.format(subtotal), color = Color.White, fontSize = 13.sp)
         }
+        Spacer(modifier = Modifier.height(4.dp))
         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-            Text("PPN (11%)", color = Color.Gray, fontSize = 13.sp)
+            Text("PPN (11%)", color = Color(0xFF9999BB), fontSize = 13.sp)
             Text(rupiahFormat.format(ppnAmount), color = Color.White, fontSize = 13.sp)
         }
-        Row(Modifier.fillMaxWidth().padding(top = 4.dp), horizontalArrangement = Arrangement.SpaceBetween) {
-            Text("Total", color = Color.White, fontWeight = FontWeight.Bold)
+        Spacer(modifier = Modifier.height(8.dp))
+        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+            Text("Total", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 16.sp)
             Text(rupiahFormat.format(total), color = TealPrimary, fontWeight = FontWeight.Bold, fontSize = 18.sp)
         }
 
@@ -375,8 +445,11 @@ private fun CartSheet(
                     label = { Text(label, fontSize = 12.sp) },
                     colors = FilterChipDefaults.filterChipColors(
                         selectedContainerColor = TealPrimary,
-                        selectedLabelColor = Color.White
-                    )
+                        selectedLabelColor = Color.White,
+                        containerColor = DarkCard,
+                        labelColor = Color(0xFFAAAACC)
+                    ),
+                    shape = RoundedCornerShape(12.dp)
                 )
             }
         }
@@ -394,8 +467,11 @@ private fun CartSheet(
                     label = { Text(label, fontSize = 12.sp) },
                     colors = FilterChipDefaults.filterChipColors(
                         selectedContainerColor = TealPrimary,
-                        selectedLabelColor = Color.White
-                    )
+                        selectedLabelColor = Color.White,
+                        containerColor = DarkCard,
+                        labelColor = Color(0xFFAAAACC)
+                    ),
+                    shape = RoundedCornerShape(12.dp)
                 )
             }
         }
@@ -408,30 +484,33 @@ private fun CartSheet(
                 label = { Text("Jumlah Bayar") },
                 singleLine = true,
                 shape = RoundedCornerShape(12.dp),
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                 colors = OutlinedTextFieldDefaults.colors(
                     focusedBorderColor = TealPrimary,
-                    unfocusedBorderColor = Color(0xFF444466)
+                    unfocusedBorderColor = Color(0xFF444466),
+                    focusedTextColor = Color.White,
+                    unfocusedTextColor = Color.White,
+                    focusedLabelColor = TealPrimary,
+                    unfocusedLabelColor = Color(0xFF8888AA)
                 ),
                 modifier = Modifier.fillMaxWidth()
             )
         }
 
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(20.dp))
 
         Button(
             onClick = {
-                val paid = if (paymentMethod == "CASH") (amountPaid.toLongOrNull() ?: total) else total
+                val paid = amountPaid.toLongOrNull() ?: total
                 onCheckout(paymentMethod, paid, deliveryType)
             },
             modifier = Modifier
                 .fillMaxWidth()
                 .height(52.dp),
             shape = RoundedCornerShape(16.dp),
-            colors = ButtonDefaults.buttonColors(containerColor = SuccessGreen)
+            colors = ButtonDefaults.buttonColors(containerColor = TealPrimary)
         ) {
-            Text("Bayar ${rupiahFormat.format(total)}", fontWeight = FontWeight.Bold)
+            Text("Bayar ${rupiahFormat.format(total)}", fontSize = 16.sp, fontWeight = FontWeight.Bold)
         }
-
-        Spacer(modifier = Modifier.height(24.dp))
     }
 }

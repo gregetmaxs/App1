@@ -11,8 +11,10 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -42,6 +44,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -51,7 +54,6 @@ import com.kasirku.app.ui.theme.DarkBackground
 import com.kasirku.app.ui.theme.DarkCard
 import com.kasirku.app.ui.theme.DarkSurface
 import com.kasirku.app.ui.theme.ErrorRed
-import com.kasirku.app.ui.theme.SuccessGreen
 import com.kasirku.app.ui.theme.TealPrimary
 import com.kasirku.app.viewmodel.SupplierViewModel
 
@@ -65,9 +67,9 @@ fun SupplierScreen(
 ) {
     val suppliers by viewModel.suppliers.collectAsState()
     var showDialog by remember { mutableStateOf(false) }
-    var newName by remember { mutableStateOf("") }
-    var newPhone by remember { mutableStateOf("") }
-    var newAddress by remember { mutableStateOf("") }
+    var name by remember { mutableStateOf("") }
+    var phone by remember { mutableStateOf("") }
+    var address by remember { mutableStateOf("") }
 
     LaunchedEffect(storeId) { viewModel.loadAll(storeId) }
 
@@ -75,87 +77,89 @@ fun SupplierScreen(
         containerColor = DarkBackground,
         topBar = {
             TopAppBar(
-                title = { Text("Supplier", color = Color.White) },
+                title = { Text("Supplier", fontWeight = FontWeight.Bold, color = Color.White) },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Kembali", tint = Color.White)
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, null, tint = Color.White)
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(containerColor = DarkSurface)
             )
         },
         floatingActionButton = {
-            FloatingActionButton(onClick = { showDialog = true }, containerColor = TealPrimary, contentColor = Color.White) {
-                Icon(Icons.Default.Add, contentDescription = "Tambah")
+            FloatingActionButton(onClick = { showDialog = true }, containerColor = TealPrimary, shape = CircleShape) {
+                Icon(Icons.Default.Add, null, tint = Color.White)
             }
         }
     ) { padding ->
-        if (suppliers.isEmpty()) {
-            Box(modifier = Modifier.fillMaxSize().padding(padding), contentAlignment = Alignment.Center) {
-                Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                    Icon(Icons.Default.LocalShipping, contentDescription = null, tint = Color.Gray, modifier = Modifier.size(48.dp))
-                    Spacer(modifier = Modifier.height(8.dp))
-                    Text("Belum ada supplier", color = Color.Gray)
-                }
-            }
-        } else {
-            LazyColumn(
-                modifier = Modifier.fillMaxSize().padding(padding).padding(horizontal = 16.dp),
-                verticalArrangement = Arrangement.spacedBy(10.dp)
-            ) {
-                item { Spacer(modifier = Modifier.height(4.dp)) }
-                items(suppliers) { sup ->
-                    Card(
-                        modifier = Modifier.fillMaxWidth(),
-                        shape = RoundedCornerShape(16.dp),
-                        colors = CardDefaults.cardColors(containerColor = DarkCard)
-                    ) {
-                        Row(
-                            modifier = Modifier.fillMaxWidth().padding(16.dp),
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Column(modifier = Modifier.weight(1f)) {
-                                Text(sup.name, color = Color.White, fontWeight = FontWeight.SemiBold)
-                                if (sup.phone.isNotEmpty()) Text(sup.phone, color = Color.Gray, fontSize = 12.sp)
-                                if (sup.address.isNotEmpty()) Text(sup.address, color = Color.Gray, fontSize = 12.sp)
-                            }
-                            IconButton(onClick = { viewModel.delete(sup.id) }) {
-                                Icon(Icons.Default.Delete, contentDescription = "Hapus", tint = ErrorRed)
+        LazyColumn(
+            modifier = Modifier.fillMaxSize().padding(padding).padding(horizontal = 16.dp),
+            verticalArrangement = Arrangement.spacedBy(10.dp)
+        ) {
+            item { Spacer(Modifier.height(8.dp)) }
+            if (suppliers.isEmpty()) {
+                item {
+                    Card(Modifier.fillMaxWidth(), shape = RoundedCornerShape(16.dp), colors = CardDefaults.cardColors(containerColor = DarkCard)) {
+                        Box(Modifier.fillMaxWidth().padding(48.dp), contentAlignment = Alignment.Center) {
+                            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                Icon(Icons.Default.LocalShipping, null, tint = Color(0xFF555577), modifier = Modifier.size(48.dp))
+                                Spacer(Modifier.height(12.dp))
+                                Text("Belum ada supplier", color = Color(0xFF7777AA), fontSize = 14.sp)
                             }
                         }
                     }
                 }
-                item { Spacer(modifier = Modifier.height(80.dp)) }
+            } else {
+                items(suppliers) { sup ->
+                    Card(Modifier.fillMaxWidth(), shape = RoundedCornerShape(14.dp), colors = CardDefaults.cardColors(containerColor = DarkCard)) {
+                        Row(Modifier.padding(14.dp), verticalAlignment = Alignment.CenterVertically) {
+                            Box(Modifier.size(44.dp).clip(CircleShape).background(TealPrimary.copy(alpha = 0.12f)), contentAlignment = Alignment.Center) {
+                                Icon(Icons.Default.LocalShipping, null, tint = TealPrimary, modifier = Modifier.size(22.dp))
+                            }
+                            Spacer(Modifier.width(12.dp))
+                            Column(modifier = Modifier.weight(1f)) {
+                                Text(sup.name, fontSize = 15.sp, color = Color.White, fontWeight = FontWeight.Medium)
+                                if (sup.phone.isNotEmpty()) Text(sup.phone, fontSize = 12.sp, color = Color(0xFF8888AA))
+                                if (sup.address.isNotEmpty()) Text(sup.address, fontSize = 11.sp, color = Color(0xFF7777AA), maxLines = 1)
+                            }
+                            IconButton(onClick = { viewModel.delete(sup.id) }) {
+                                Icon(Icons.Default.Delete, null, tint = ErrorRed, modifier = Modifier.size(20.dp))
+                            }
+                        }
+                    }
+                }
             }
+            item { Spacer(Modifier.height(80.dp)) }
         }
     }
 
     if (showDialog) {
-        val fieldColors = OutlinedTextFieldDefaults.colors(focusedBorderColor = TealPrimary, unfocusedBorderColor = Color(0xFF444466))
+        val fieldColors = OutlinedTextFieldDefaults.colors(
+            focusedBorderColor = TealPrimary, unfocusedBorderColor = Color(0xFF444466),
+            focusedTextColor = Color.White, unfocusedTextColor = Color.White,
+            focusedLabelColor = TealPrimary, unfocusedLabelColor = Color(0xFF8888AA)
+        )
         AlertDialog(
-            onDismissRequest = { showDialog = false },
-            title = { Text("Tambah Supplier") },
+            onDismissRequest = { showDialog = false; name = ""; phone = ""; address = "" },
+            title = { Text("Tambah Supplier", color = Color.White) },
             text = {
                 Column {
-                    OutlinedTextField(value = newName, onValueChange = { newName = it }, label = { Text("Nama Supplier") }, singleLine = true, shape = RoundedCornerShape(12.dp), colors = fieldColors)
-                    Spacer(modifier = Modifier.height(8.dp))
-                    OutlinedTextField(value = newPhone, onValueChange = { newPhone = it }, label = { Text("No. Telepon") }, singleLine = true, shape = RoundedCornerShape(12.dp), colors = fieldColors)
-                    Spacer(modifier = Modifier.height(8.dp))
-                    OutlinedTextField(value = newAddress, onValueChange = { newAddress = it }, label = { Text("Alamat") }, shape = RoundedCornerShape(12.dp), colors = fieldColors)
+                    OutlinedTextField(value = name, onValueChange = { name = it }, label = { Text("Nama Supplier *") }, singleLine = true, shape = RoundedCornerShape(14.dp), colors = fieldColors, modifier = Modifier.fillMaxWidth())
+                    Spacer(Modifier.height(8.dp))
+                    OutlinedTextField(value = phone, onValueChange = { phone = it }, label = { Text("No. Telepon") }, singleLine = true, shape = RoundedCornerShape(14.dp), colors = fieldColors, modifier = Modifier.fillMaxWidth())
+                    Spacer(Modifier.height(8.dp))
+                    OutlinedTextField(value = address, onValueChange = { address = it }, label = { Text("Alamat") }, singleLine = true, shape = RoundedCornerShape(14.dp), colors = fieldColors, modifier = Modifier.fillMaxWidth())
                 }
             },
             confirmButton = {
                 TextButton(onClick = {
-                    if (newName.isNotBlank()) {
-                        viewModel.create(newName, newPhone, newAddress, storeId)
-                        newName = ""; newPhone = ""; newAddress = ""
-                        showDialog = false
-                    }
+                    if (name.isNotBlank()) { viewModel.create(name, phone, address, storeId); name = ""; phone = ""; address = ""; showDialog = false }
                 }) { Text("Simpan", color = TealPrimary) }
             },
             dismissButton = {
-                TextButton(onClick = { showDialog = false }) { Text("Batal", color = Color.Gray) }
-            }
+                TextButton(onClick = { showDialog = false; name = ""; phone = ""; address = "" }) { Text("Batal", color = Color.Gray) }
+            },
+            containerColor = DarkSurface
         )
     }
 }

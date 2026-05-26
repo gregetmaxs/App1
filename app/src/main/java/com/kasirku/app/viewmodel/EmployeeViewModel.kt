@@ -15,11 +15,9 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 data class EmployeeUiState(
-    val employees: List<User> = emptyList(),
-    val roles: List<Role> = emptyList(),
     val isLoading: Boolean = false,
     val success: Boolean = false,
-    val error: String? = null
+    val error: String = ""
 )
 
 @HiltViewModel
@@ -29,26 +27,28 @@ class EmployeeViewModel @Inject constructor(
     private val authRepository: AuthRepository
 ) : ViewModel() {
 
+    private val _employees = MutableStateFlow<List<User>>(emptyList())
+    val employees: StateFlow<List<User>> = _employees.asStateFlow()
+
+    private val _roles = MutableStateFlow<List<Role>>(emptyList())
+    val roles: StateFlow<List<Role>> = _roles.asStateFlow()
+
     private val _uiState = MutableStateFlow(EmployeeUiState())
     val uiState: StateFlow<EmployeeUiState> = _uiState.asStateFlow()
 
     fun loadData(storeId: String) {
         viewModelScope.launch {
-            userRepository.getAllByStore(storeId).collect {
-                _uiState.value = _uiState.value.copy(employees = it)
-            }
+            userRepository.getAllByStore(storeId).collect { _employees.value = it }
         }
         viewModelScope.launch {
-            roleRepository.getAllByStore(storeId).collect {
-                _uiState.value = _uiState.value.copy(roles = it)
-            }
+            roleRepository.getAllByStore(storeId).collect { _roles.value = it }
         }
     }
 
-    fun registerEmployee(
+    fun createEmployee(
+        fullName: String,
         email: String,
         password: String,
-        fullName: String,
         phone: String,
         nik: String,
         address: String,
@@ -56,12 +56,12 @@ class EmployeeViewModel @Inject constructor(
         storeId: String
     ) {
         viewModelScope.launch {
-            _uiState.value = _uiState.value.copy(isLoading = true)
+            _uiState.value = _uiState.value.copy(isLoading = true, error = "")
             authRepository.registerEmployee(email, password, fullName, phone, nik, address, roleId, storeId)
                 .onSuccess { _uiState.value = _uiState.value.copy(isLoading = false, success = true) }
-                .onFailure { e -> _uiState.value = _uiState.value.copy(isLoading = false, error = e.message) }
+                .onFailure { e -> _uiState.value = _uiState.value.copy(isLoading = false, error = e.message ?: "Gagal") }
         }
     }
 
-    fun clearState() { _uiState.value = _uiState.value.copy(success = false, error = null) }
+    fun clearState() { _uiState.value = EmployeeUiState() }
 }

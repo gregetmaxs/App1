@@ -36,6 +36,8 @@ class ProductViewModel @Inject constructor(
     private val _uiState = MutableStateFlow(ProductUiState())
     val uiState: StateFlow<ProductUiState> = _uiState.asStateFlow()
 
+    fun loadAll(storeId: String) { loadData(storeId) }
+
     fun loadData(storeId: String) {
         if (storeId.isEmpty()) return
         viewModelScope.launch {
@@ -65,7 +67,7 @@ class ProductViewModel @Inject constructor(
         stock: Int,
         unit: String,
         storeId: String,
-        variants: List<ProductVariant>
+        variants: List<ProductVariant> = emptyList()
     ) {
         viewModelScope.launch {
             _uiState.value = _uiState.value.copy(isLoading = true)

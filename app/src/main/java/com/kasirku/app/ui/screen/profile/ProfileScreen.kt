@@ -25,12 +25,13 @@ import androidx.compose.material.icons.filled.Group
 import androidx.compose.material.icons.filled.Inventory2
 import androidx.compose.material.icons.filled.LocalShipping
 import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.Shield
+import androidx.compose.material.icons.filled.VpnKey
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
@@ -49,17 +50,15 @@ import com.kasirku.app.ui.theme.SuccessGreen
 import com.kasirku.app.ui.theme.TealPrimary
 import com.kasirku.app.ui.theme.WarningAmber
 import com.kasirku.core.model.License
-import com.kasirku.core.model.Role
 import com.kasirku.core.model.User
+import com.kasirku.core.util.Constants
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
-import java.util.concurrent.TimeUnit
 
 @Composable
 fun ProfileScreen(
     user: User?,
-    role: Role?,
     license: License?,
     onLogout: () -> Unit,
     onNavigateToProducts: () -> Unit,
@@ -68,148 +67,191 @@ fun ProfileScreen(
     onNavigateToSuppliers: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val scrollState = rememberScrollState()
-    val dateFormat = remember { SimpleDateFormat("dd MMM yyyy", Locale("id")) }
+    val dateFormat = remember { SimpleDateFormat("dd MMMM yyyy", Locale("id")) }
 
     Column(
         modifier = modifier
             .fillMaxSize()
             .background(DarkBackground)
-            .verticalScroll(scrollState)
-            .padding(20.dp)
+            .verticalScroll(rememberScrollState())
+            .padding(16.dp),
+        verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
-        // Avatar + Info
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            Box(
-                modifier = Modifier
-                    .size(56.dp)
-                    .clip(CircleShape)
-                    .background(TealPrimary),
-                contentAlignment = Alignment.Center
+        Spacer(modifier = Modifier.height(8.dp))
+
+        // Profile Header Card
+        Card(
+            modifier = Modifier.fillMaxWidth(),
+            shape = RoundedCornerShape(20.dp),
+            colors = CardDefaults.cardColors(containerColor = DarkCard)
+        ) {
+            Column(
+                modifier = Modifier.padding(20.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Icon(Icons.Default.Person, contentDescription = null, tint = Color.White, modifier = Modifier.size(28.dp))
-            }
-            Spacer(modifier = Modifier.width(16.dp))
-            Column {
+                Box(
+                    modifier = Modifier
+                        .size(72.dp)
+                        .clip(CircleShape)
+                        .background(TealPrimary.copy(alpha = 0.15f)),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Icon(
+                        Icons.Default.Person,
+                        contentDescription = null,
+                        tint = TealPrimary,
+                        modifier = Modifier.size(36.dp)
+                    )
+                }
+                Spacer(modifier = Modifier.height(12.dp))
                 Text(
-                    text = user?.fullName?.ifEmpty { "Boss" } ?: "Boss",
-                    style = MaterialTheme.typography.titleMedium,
+                    text = user?.fullName?.ifEmpty { user.email.substringBefore("@") } ?: "User",
+                    fontSize = 20.sp,
                     color = Color.White,
                     fontWeight = FontWeight.Bold
                 )
                 Text(
                     text = user?.email ?: "",
-                    style = MaterialTheme.typography.bodySmall,
-                    color = Color.Gray
-                )
-                Text(
-                    text = role?.name ?: "Admin",
-                    style = MaterialTheme.typography.labelSmall,
-                    color = TealPrimary
+                    fontSize = 13.sp,
+                    color = Color(0xFF9999BB)
                 )
             }
         }
 
-        Spacer(modifier = Modifier.height(20.dp))
-
-        // License info
-        if (license != null) {
+        // License Info Card
+        license?.let { lic ->
             Card(
                 modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(16.dp),
+                shape = RoundedCornerShape(20.dp),
                 colors = CardDefaults.cardColors(containerColor = DarkCard)
             ) {
-                Column(modifier = Modifier.padding(16.dp)) {
-                    Text("Informasi License", color = Color.White, fontWeight = FontWeight.SemiBold)
-                    Spacer(modifier = Modifier.height(8.dp))
-                    LicenseInfoRow("Key", license.licenseKey)
-                    LicenseInfoRow("Tipe", license.type)
-                    LicenseInfoRow("Status", license.status)
-                    if (license.expiresAt > 0) {
-                        LicenseInfoRow("Berlaku Sampai", dateFormat.format(Date(license.expiresAt)))
-                        val daysLeft = TimeUnit.MILLISECONDS.toDays(license.expiresAt - System.currentTimeMillis())
-                        LicenseInfoRow("Sisa Hari", if (daysLeft > 0) "$daysLeft hari" else "Expired")
-                    } else {
-                        LicenseInfoRow("Berlaku Sampai", "Permanent")
+                Column(modifier = Modifier.padding(20.dp)) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Box(
+                            modifier = Modifier
+                                .size(40.dp)
+                                .clip(CircleShape)
+                                .background(TealPrimary.copy(alpha = 0.12f)),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Icon(Icons.Default.VpnKey, contentDescription = null, tint = TealPrimary, modifier = Modifier.size(20.dp))
+                        }
+                        Spacer(modifier = Modifier.width(12.dp))
+                        Column {
+                            Text("Informasi License", fontSize = 16.sp, color = Color.White, fontWeight = FontWeight.SemiBold)
+                            Text(lic.licenseKey, fontSize = 11.sp, color = Color(0xFF8888AA))
+                        }
+                    }
+                    Spacer(modifier = Modifier.height(16.dp))
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        LicenseInfoItem("Tipe", Constants.LICENSE_LABELS[lic.type] ?: lic.type)
+                        LicenseInfoItem("Status", if (lic.isExpired) "Expired" else "Aktif", if (lic.isExpired) ErrorRed else SuccessGreen)
+                        if (!lic.isPermanent && lic.expiresAt > 0) {
+                            LicenseInfoItem("Berlaku s/d", dateFormat.format(Date(lic.expiresAt)))
+                        }
+                    }
+                    if (!lic.isPermanent && !lic.isExpired) {
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Text(
+                            text = "Sisa ${lic.remainingDays} hari",
+                            fontSize = 13.sp,
+                            color = if (lic.remainingDays < 7) WarningAmber else SuccessGreen,
+                            fontWeight = FontWeight.Medium
+                        )
                     }
                 }
             }
         }
 
-        Spacer(modifier = Modifier.height(20.dp))
-
-        // Menu items
+        // Menu Items Card
         Card(
             modifier = Modifier.fillMaxWidth(),
-            shape = RoundedCornerShape(16.dp),
+            shape = RoundedCornerShape(20.dp),
             colors = CardDefaults.cardColors(containerColor = DarkCard)
         ) {
             Column {
-                ProfileMenuItem(Icons.Default.Inventory2, "Kelola Produk", TealPrimary, onClick = onNavigateToProducts)
-                ProfileMenuItem(Icons.Default.Category, "Kategori", WarningAmber, onClick = onNavigateToCategories)
-                ProfileMenuItem(Icons.Default.Group, "Karyawan", Color(0xFF42A5F5), onClick = onNavigateToEmployees)
-                ProfileMenuItem(Icons.Default.LocalShipping, "Supplier", SuccessGreen, onClick = onNavigateToSuppliers)
+                Text(
+                    "Kelola Toko",
+                    fontSize = 14.sp,
+                    color = Color(0xFF9999BB),
+                    fontWeight = FontWeight.Medium,
+                    modifier = Modifier.padding(start = 20.dp, top = 16.dp, bottom = 8.dp)
+                )
+                ProfileMenuItem("Kelola Produk", Icons.Default.Inventory2, TealPrimary, onNavigateToProducts)
+                ProfileMenuItem("Kategori", Icons.Default.Category, SuccessGreen, onNavigateToCategories)
+                ProfileMenuItem("Karyawan", Icons.Default.Group, WarningAmber, onNavigateToEmployees)
+                ProfileMenuItem("Supplier", Icons.Default.LocalShipping, Color(0xFF7C4DFF), onNavigateToSuppliers)
+                Spacer(modifier = Modifier.height(8.dp))
             }
         }
 
-        Spacer(modifier = Modifier.height(24.dp))
-
+        // Logout Button
         Button(
             onClick = onLogout,
             modifier = Modifier
                 .fillMaxWidth()
-                .height(48.dp),
+                .height(50.dp),
             shape = RoundedCornerShape(16.dp),
-            colors = ButtonDefaults.buttonColors(containerColor = ErrorRed)
+            colors = ButtonDefaults.buttonColors(
+                containerColor = ErrorRed.copy(alpha = 0.12f),
+                contentColor = ErrorRed
+            )
         ) {
-            Icon(Icons.AutoMirrored.Filled.ExitToApp, contentDescription = null, modifier = Modifier.size(18.dp))
+            Icon(Icons.AutoMirrored.Filled.ExitToApp, contentDescription = null, modifier = Modifier.size(20.dp))
             Spacer(modifier = Modifier.width(8.dp))
-            Text("Logout")
+            Text("Logout", fontWeight = FontWeight.SemiBold, fontSize = 15.sp)
         }
 
-        Spacer(modifier = Modifier.height(20.dp))
+        Spacer(modifier = Modifier.height(8.dp))
     }
 }
 
 @Composable
-private fun LicenseInfoRow(label: String, value: String) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(vertical = 2.dp),
-        horizontalArrangement = Arrangement.SpaceBetween
-    ) {
-        Text(label, color = Color.Gray, fontSize = 13.sp)
-        Text(
-            value, color = when {
-                value == "ACTIVE" -> SuccessGreen
-                value == "EXPIRED" || value == "Expired" -> ErrorRed
-                value == "Permanent" -> TealPrimary
-                else -> Color.White
-            },
-            fontSize = 13.sp,
-            fontWeight = FontWeight.SemiBold
-        )
+private fun LicenseInfoItem(label: String, value: String, valueColor: Color = Color.White) {
+    Column {
+        Text(label, fontSize = 11.sp, color = Color(0xFF8888AA))
+        Text(value, fontSize = 13.sp, color = valueColor, fontWeight = FontWeight.Medium)
     }
 }
 
 @Composable
 private fun ProfileMenuItem(
-    icon: ImageVector,
     title: String,
-    color: Color,
+    icon: ImageVector,
+    iconTint: Color,
     onClick: () -> Unit
 ) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .clickable { onClick() }
-            .padding(horizontal = 16.dp, vertical = 14.dp),
+            .clickable(onClick = onClick)
+            .padding(horizontal = 20.dp, vertical = 14.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Icon(icon, contentDescription = null, tint = color, modifier = Modifier.size(22.dp))
-        Spacer(modifier = Modifier.width(16.dp))
-        Text(title, color = Color.White, modifier = Modifier.weight(1f))
-        Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, contentDescription = null, tint = Color.Gray, modifier = Modifier.size(20.dp))
+        Box(
+            modifier = Modifier
+                .size(36.dp)
+                .clip(CircleShape)
+                .background(iconTint.copy(alpha = 0.12f)),
+            contentAlignment = Alignment.Center
+        ) {
+            Icon(icon, contentDescription = null, tint = iconTint, modifier = Modifier.size(18.dp))
+        }
+        Spacer(modifier = Modifier.width(14.dp))
+        Text(
+            text = title,
+            fontSize = 15.sp,
+            color = Color.White,
+            modifier = Modifier.weight(1f)
+        )
+        Icon(
+            Icons.AutoMirrored.Filled.KeyboardArrowRight,
+            contentDescription = null,
+            tint = Color(0xFF555577),
+            modifier = Modifier.size(20.dp)
+        )
     }
 }

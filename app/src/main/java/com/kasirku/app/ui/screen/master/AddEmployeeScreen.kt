@@ -8,12 +8,12 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
@@ -35,7 +35,10 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.kasirku.app.ui.theme.DarkBackground
 import com.kasirku.app.ui.theme.DarkCard
@@ -52,6 +55,7 @@ fun AddEmployeeScreen(
     viewModel: EmployeeViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
+    val roles by viewModel.roles.collectAsState()
 
     var fullName by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") }
@@ -60,16 +64,18 @@ fun AddEmployeeScreen(
     var nik by remember { mutableStateOf("") }
     var address by remember { mutableStateOf("") }
     var selectedRoleId by remember { mutableStateOf("") }
-    var expandedRole by remember { mutableStateOf(false) }
+    var roleExpanded by remember { mutableStateOf(false) }
 
     LaunchedEffect(storeId) { viewModel.loadData(storeId) }
-    LaunchedEffect(uiState.success) {
-        if (uiState.success) { viewModel.clearState(); onBack() }
-    }
+    LaunchedEffect(uiState.success) { if (uiState.success) onBack() }
 
     val fieldColors = OutlinedTextFieldDefaults.colors(
         focusedBorderColor = TealPrimary,
         unfocusedBorderColor = Color(0xFF444466),
+        focusedTextColor = Color.White,
+        unfocusedTextColor = Color.White,
+        focusedLabelColor = TealPrimary,
+        unfocusedLabelColor = Color(0xFF8888AA),
         focusedContainerColor = DarkCard,
         unfocusedContainerColor = DarkCard
     )
@@ -78,10 +84,10 @@ fun AddEmployeeScreen(
         containerColor = DarkBackground,
         topBar = {
             TopAppBar(
-                title = { Text("Daftar Karyawan", color = Color.White) },
+                title = { Text("Tambah Karyawan", fontWeight = FontWeight.Bold, color = Color.White) },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Kembali", tint = Color.White)
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, null, tint = Color.White)
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(containerColor = DarkSurface)
@@ -89,74 +95,110 @@ fun AddEmployeeScreen(
         }
     ) { padding ->
         Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(padding)
-                .padding(horizontal = 20.dp)
-                .verticalScroll(rememberScrollState())
+            modifier = Modifier.fillMaxSize().padding(padding).padding(horizontal = 16.dp).verticalScroll(rememberScrollState())
         ) {
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(Modifier.height(16.dp))
 
-            OutlinedTextField(value = fullName, onValueChange = { fullName = it }, label = { Text("Nama Lengkap *") }, singleLine = true, shape = RoundedCornerShape(12.dp), colors = fieldColors, modifier = Modifier.fillMaxWidth())
-            Spacer(modifier = Modifier.height(12.dp))
-            OutlinedTextField(value = nik, onValueChange = { nik = it.filter { c -> c.isDigit() } }, label = { Text("No. KTP (NIK) *") }, singleLine = true, shape = RoundedCornerShape(12.dp), colors = fieldColors, modifier = Modifier.fillMaxWidth())
-            Spacer(modifier = Modifier.height(12.dp))
-            OutlinedTextField(value = phone, onValueChange = { phone = it.filter { c -> c.isDigit() } }, label = { Text("No. HP *") }, singleLine = true, shape = RoundedCornerShape(12.dp), colors = fieldColors, modifier = Modifier.fillMaxWidth())
-            Spacer(modifier = Modifier.height(12.dp))
-            OutlinedTextField(value = address, onValueChange = { address = it }, label = { Text("Alamat *") }, shape = RoundedCornerShape(12.dp), colors = fieldColors, modifier = Modifier.fillMaxWidth())
-            Spacer(modifier = Modifier.height(12.dp))
-            OutlinedTextField(value = email, onValueChange = { email = it }, label = { Text("Email *") }, singleLine = true, shape = RoundedCornerShape(12.dp), colors = fieldColors, modifier = Modifier.fillMaxWidth())
-            Spacer(modifier = Modifier.height(12.dp))
-            OutlinedTextField(value = password, onValueChange = { password = it }, label = { Text("Password *") }, singleLine = true, shape = RoundedCornerShape(12.dp), colors = fieldColors, modifier = Modifier.fillMaxWidth())
-            Spacer(modifier = Modifier.height(12.dp))
+            OutlinedTextField(
+                value = fullName, onValueChange = { fullName = it },
+                label = { Text("Nama Lengkap *") },
+                singleLine = true, shape = RoundedCornerShape(14.dp),
+                colors = fieldColors, modifier = Modifier.fillMaxWidth()
+            )
+            Spacer(Modifier.height(12.dp))
 
-            ExposedDropdownMenuBox(expanded = expandedRole, onExpandedChange = { expandedRole = it }) {
+            OutlinedTextField(
+                value = nik, onValueChange = { nik = it.filter { c -> c.isDigit() } },
+                label = { Text("No. KTP (NIK) *") },
+                singleLine = true, shape = RoundedCornerShape(14.dp),
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                colors = fieldColors, modifier = Modifier.fillMaxWidth()
+            )
+            Spacer(Modifier.height(12.dp))
+
+            OutlinedTextField(
+                value = phone, onValueChange = { phone = it.filter { c -> c.isDigit() || c == '+' } },
+                label = { Text("No. HP *") },
+                singleLine = true, shape = RoundedCornerShape(14.dp),
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone),
+                colors = fieldColors, modifier = Modifier.fillMaxWidth()
+            )
+            Spacer(Modifier.height(12.dp))
+
+            OutlinedTextField(
+                value = address, onValueChange = { address = it },
+                label = { Text("Alamat *") },
+                minLines = 2, maxLines = 3, shape = RoundedCornerShape(14.dp),
+                colors = fieldColors, modifier = Modifier.fillMaxWidth()
+            )
+            Spacer(Modifier.height(12.dp))
+
+            OutlinedTextField(
+                value = email, onValueChange = { email = it },
+                label = { Text("Email (untuk login) *") },
+                singleLine = true, shape = RoundedCornerShape(14.dp),
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
+                colors = fieldColors, modifier = Modifier.fillMaxWidth()
+            )
+            Spacer(Modifier.height(12.dp))
+
+            OutlinedTextField(
+                value = password, onValueChange = { password = it },
+                label = { Text("Password (min 6 karakter) *") },
+                singleLine = true, shape = RoundedCornerShape(14.dp),
+                colors = fieldColors, modifier = Modifier.fillMaxWidth()
+            )
+            Spacer(Modifier.height(12.dp))
+
+            // Role Dropdown
+            ExposedDropdownMenuBox(expanded = roleExpanded, onExpandedChange = { roleExpanded = it }) {
                 OutlinedTextField(
-                    value = uiState.roles.find { it.id == selectedRoleId }?.name ?: "",
+                    value = roles.find { it.id == selectedRoleId }?.name ?: "",
                     onValueChange = {},
                     readOnly = true,
                     label = { Text("Role *") },
-                    trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expandedRole) },
-                    shape = RoundedCornerShape(12.dp),
+                    trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = roleExpanded) },
+                    shape = RoundedCornerShape(14.dp),
                     colors = fieldColors,
-                    modifier = Modifier.fillMaxWidth().menuAnchor()
+                    modifier = Modifier.menuAnchor().fillMaxWidth()
                 )
-                ExposedDropdownMenu(expanded = expandedRole, onDismissRequest = { expandedRole = false }) {
-                    uiState.roles.forEach { role ->
+                ExposedDropdownMenu(expanded = roleExpanded, onDismissRequest = { roleExpanded = false }) {
+                    roles.forEach { role ->
                         DropdownMenuItem(
-                            text = { Text(role.name) },
-                            onClick = { selectedRoleId = role.id; expandedRole = false }
+                            text = { Text(role.name, color = Color.White) },
+                            onClick = { selectedRoleId = role.id; roleExpanded = false }
                         )
                     }
                 }
             }
+            Spacer(Modifier.height(24.dp))
 
-            if (uiState.error != null) {
-                Spacer(modifier = Modifier.height(8.dp))
-                Text(uiState.error!!, color = Color.Red)
-            }
-
-            Spacer(modifier = Modifier.height(24.dp))
+            val isValid = fullName.isNotBlank() && nik.length >= 16 && phone.isNotBlank() &&
+                    address.isNotBlank() && email.contains("@") && password.length >= 6 &&
+                    selectedRoleId.isNotBlank()
 
             Button(
                 onClick = {
-                    if (fullName.isNotBlank() && email.isNotBlank() && password.length >= 6 && nik.isNotBlank() && phone.isNotBlank() && address.isNotBlank()) {
-                        viewModel.registerEmployee(email, password, fullName, phone, nik, address, selectedRoleId, storeId)
-                    }
+                    viewModel.createEmployee(
+                        fullName = fullName, email = email, password = password,
+                        phone = phone, nik = nik, address = address,
+                        roleId = selectedRoleId, storeId = storeId
+                    )
                 },
-                enabled = !uiState.isLoading,
+                enabled = isValid,
                 modifier = Modifier.fillMaxWidth().height(52.dp),
                 shape = RoundedCornerShape(16.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = TealPrimary)
+                colors = ButtonDefaults.buttonColors(containerColor = TealPrimary, disabledContainerColor = Color(0xFF333355))
             ) {
-                if (uiState.isLoading) {
-                    CircularProgressIndicator(color = Color.White)
-                } else {
-                    Text("Daftar Karyawan")
-                }
+                Text("Simpan Karyawan", fontSize = 16.sp, fontWeight = FontWeight.Bold)
             }
 
-            Spacer(modifier = Modifier.height(24.dp))
+            if (uiState.error.isNotEmpty()) {
+                Spacer(Modifier.height(12.dp))
+                Text(uiState.error, color = Color.Red, fontSize = 13.sp)
+            }
+
+            Spacer(Modifier.height(24.dp))
         }
     }
 }

@@ -47,8 +47,8 @@ import com.kasirku.app.ui.theme.DarkBackground
 import com.kasirku.app.ui.theme.DarkCard
 import com.kasirku.app.ui.theme.DarkSurface
 import com.kasirku.app.ui.theme.TealPrimary
+import com.kasirku.app.ui.theme.WarningAmber
 import com.kasirku.app.viewmodel.EmployeeViewModel
-import com.kasirku.core.model.User
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -59,7 +59,7 @@ fun EmployeeScreen(
     modifier: Modifier = Modifier,
     viewModel: EmployeeViewModel = hiltViewModel()
 ) {
-    val uiState by viewModel.uiState.collectAsState()
+    val employees by viewModel.employees.collectAsState()
 
     LaunchedEffect(storeId) { viewModel.loadData(storeId) }
 
@@ -67,70 +67,56 @@ fun EmployeeScreen(
         containerColor = DarkBackground,
         topBar = {
             TopAppBar(
-                title = { Text("Karyawan", color = Color.White) },
+                title = { Text("Karyawan", fontWeight = FontWeight.Bold, color = Color.White) },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Kembali", tint = Color.White)
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, null, tint = Color.White)
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(containerColor = DarkSurface)
             )
         },
         floatingActionButton = {
-            FloatingActionButton(onClick = onAddEmployee, containerColor = TealPrimary, contentColor = Color.White) {
-                Icon(Icons.Default.Add, contentDescription = "Tambah")
+            FloatingActionButton(onClick = onAddEmployee, containerColor = TealPrimary, shape = CircleShape) {
+                Icon(Icons.Default.Add, null, tint = Color.White)
             }
         }
     ) { padding ->
-        if (uiState.employees.isEmpty()) {
-            Box(modifier = Modifier.fillMaxSize().padding(padding), contentAlignment = Alignment.Center) {
-                Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                    Icon(Icons.Default.Group, contentDescription = null, tint = Color.Gray, modifier = Modifier.size(48.dp))
-                    Spacer(modifier = Modifier.height(8.dp))
-                    Text("Belum ada karyawan", color = Color.Gray)
-                }
-            }
-        } else {
-            LazyColumn(
-                modifier = Modifier.fillMaxSize().padding(padding).padding(horizontal = 16.dp),
-                verticalArrangement = Arrangement.spacedBy(10.dp)
-            ) {
-                item { Spacer(modifier = Modifier.height(4.dp)) }
-                items(uiState.employees) { emp ->
-                    EmployeeCard(emp, uiState.roles.find { it.id == emp.roleId }?.name ?: "")
-                }
-                item { Spacer(modifier = Modifier.height(80.dp)) }
-            }
-        }
-    }
-}
-
-@Composable
-private fun EmployeeCard(user: User, roleName: String) {
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(containerColor = DarkCard)
-    ) {
-        Row(
-            modifier = Modifier.fillMaxWidth().padding(16.dp),
-            verticalAlignment = Alignment.CenterVertically
+        LazyColumn(
+            modifier = Modifier.fillMaxSize().padding(padding).padding(horizontal = 16.dp),
+            verticalArrangement = Arrangement.spacedBy(10.dp)
         ) {
-            Box(
-                modifier = Modifier.size(40.dp).clip(CircleShape).background(TealPrimary),
-                contentAlignment = Alignment.Center
-            ) {
-                Icon(Icons.Default.Person, contentDescription = null, tint = Color.White, modifier = Modifier.size(20.dp))
-            }
-            Spacer(modifier = Modifier.width(12.dp))
-            Column(modifier = Modifier.weight(1f)) {
-                Text(user.fullName, color = Color.White, fontWeight = FontWeight.SemiBold)
-                Text(user.email, color = Color.Gray, fontSize = 12.sp)
-                if (user.phone.isNotEmpty()) {
-                    Text(user.phone, color = Color.Gray, fontSize = 12.sp)
+            item { Spacer(Modifier.height(8.dp)) }
+            if (employees.isEmpty()) {
+                item {
+                    Card(Modifier.fillMaxWidth(), shape = RoundedCornerShape(16.dp), colors = CardDefaults.cardColors(containerColor = DarkCard)) {
+                        Box(Modifier.fillMaxWidth().padding(48.dp), contentAlignment = Alignment.Center) {
+                            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                Icon(Icons.Default.Group, null, tint = Color(0xFF555577), modifier = Modifier.size(48.dp))
+                                Spacer(Modifier.height(12.dp))
+                                Text("Belum ada karyawan", color = Color(0xFF7777AA), fontSize = 14.sp)
+                            }
+                        }
+                    }
+                }
+            } else {
+                items(employees) { emp ->
+                    Card(Modifier.fillMaxWidth(), shape = RoundedCornerShape(14.dp), colors = CardDefaults.cardColors(containerColor = DarkCard)) {
+                        Row(Modifier.padding(14.dp), verticalAlignment = Alignment.CenterVertically) {
+                            Box(Modifier.size(44.dp).clip(CircleShape).background(WarningAmber.copy(alpha = 0.12f)), contentAlignment = Alignment.Center) {
+                                Icon(Icons.Default.Person, null, tint = WarningAmber, modifier = Modifier.size(22.dp))
+                            }
+                            Spacer(Modifier.width(12.dp))
+                            Column(modifier = Modifier.weight(1f)) {
+                                Text(emp.fullName.ifEmpty { emp.email }, fontSize = 15.sp, color = Color.White, fontWeight = FontWeight.Medium)
+                                Text(emp.email, fontSize = 12.sp, color = Color(0xFF8888AA))
+                                if (emp.phone.isNotEmpty()) Text(emp.phone, fontSize = 11.sp, color = Color(0xFF7777AA))
+                            }
+                        }
+                    }
                 }
             }
-            Text(roleName, color = TealPrimary, fontSize = 12.sp, fontWeight = FontWeight.SemiBold)
+            item { Spacer(Modifier.height(80.dp)) }
         }
     }
 }
