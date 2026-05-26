@@ -1,0 +1,251 @@
+---
+title: Building Modern Web Apps with Next.js
+description: A comprehensive guide to building modern web applications using Next.js 13, covering server components, data fetching, routing, and more.
+image: /images/blog/blog-post-1.jpg
+date: "2023-04-15"
+authors:
+  - shadcn
+---
+
+Next.js 13 introduced the App Router, a paradigm shift in how we build React applications. In this post, we'll explore the key concepts and patterns that make Next.js a powerful framework for building modern web apps.
+
+## Getting Started
+
+To create a new Next.js project, run the following command:
+
+```bash
+npx create-next-app@latest my-app --typescript --tailwind --eslint
+```
+
+This sets up a new project with TypeScript, Tailwind CSS, and ESLint configured out of the box. The project structure looks like this:
+
+```
+my-app/
+├── app/
+│   ├── layout.tsx
+│   ├── page.tsx
+│   └── globals.css
+├── public/
+├── next.config.js
+├── tailwind.config.js
+├── tsconfig.json
+└── package.json
+```
+
+## Server and Client Components
+
+One of the most important concepts in Next.js 13 is the distinction between **Server Components** and **Client Components**.
+
+### Server Components
+
+By default, all components in the `app` directory are Server Components. They run on the server and send only the rendered HTML to the client:
+
+```tsx
+// app/posts/page.tsx — Server Component (default)
+async function getPosts() {
+  const res = await fetch("https://api.example.com/posts", {
+    next: { revalidate: 3600 },
+  })
+  return res.json()
+}
+
+export default async function PostsPage() {
+  const posts = await getPosts()
+
+  return (
+    <ul>
+      {posts.map((post) => (
+        <li key={post.id}>{post.title}</li>
+      ))}
+    </ul>
+  )
+}
+```
+
+### Client Components
+
+When you need interactivity, state, or browser APIs, use the `"use client"` directive:
+
+```tsx
+"use client"
+
+import { useState } from "react"
+
+export function Counter() {
+  const [count, setCount] = useState(0)
+
+  return <button onClick={() => setCount(count + 1)}>Count: {count}</button>
+}
+```
+
+> **Tip:** Keep client components as small as possible. Extract interactive parts into their own client components and compose them within server components.
+
+## Routing and Layouts
+
+The App Router uses a file-system based routing approach with support for nested layouts.
+
+### Defining Routes
+
+Each folder inside `app/` represents a route segment. A `page.tsx` file makes the route publicly accessible:
+
+```
+app/
+├── page.tsx            → /
+├── about/
+│   └── page.tsx        → /about
+├── blog/
+│   ├── page.tsx        → /blog
+│   └── [slug]/
+│       └── page.tsx    → /blog/:slug
+```
+
+### Nested Layouts
+
+Layouts wrap pages and preserve state across navigations:
+
+```tsx
+// app/dashboard/layout.tsx
+export default function DashboardLayout({
+  children,
+}: {
+  children: React.ReactNode
+}) {
+  return (
+    <div className="flex">
+      <aside className="w-64 border-r p-4">
+        <nav>
+          <a href="/dashboard">Overview</a>
+          <a href="/dashboard/settings">Settings</a>
+        </nav>
+      </aside>
+      <main className="flex-1 p-6">{children}</main>
+    </div>
+  )
+}
+```
+
+## Data Fetching Patterns
+
+Next.js 13 provides several patterns for fetching data efficiently.
+
+### Static Data
+
+Fetch data at build time for pages that don't change often:
+
+```tsx
+async function getProducts() {
+  const res = await fetch("https://api.example.com/products")
+  return res.json()
+}
+```
+
+### Dynamic Data
+
+For data that changes frequently, opt out of caching:
+
+```tsx
+async function getStock(productId: string) {
+  const res = await fetch(
+    `https://api.example.com/products/${productId}/stock`,
+    { cache: "no-store" }
+  )
+  return res.json()
+}
+```
+
+### Incremental Static Regeneration
+
+Revalidate cached data at a specified interval:
+
+```tsx
+async function getPosts() {
+  const res = await fetch("https://api.example.com/posts", {
+    next: { revalidate: 60 }, // Revalidate every 60 seconds
+  })
+  return res.json()
+}
+```
+
+## Styling with Tailwind CSS
+
+Tailwind CSS integrates seamlessly with Next.js. Here's an example of a responsive card component:
+
+```tsx
+function ProductCard({ product }) {
+  return (
+    <div className="group rounded-lg border p-4 transition-shadow hover:shadow-lg">
+      <img
+        src={product.image}
+        alt={product.name}
+        className="aspect-square w-full rounded-md object-cover"
+      />
+      <div className="mt-4 space-y-2">
+        <h3 className="text-lg font-semibold">{product.name}</h3>
+        <p className="text-sm text-muted-foreground">{product.description}</p>
+        <p className="text-xl font-bold">${product.price}</p>
+      </div>
+    </div>
+  )
+}
+```
+
+## API Routes
+
+Next.js 13 introduces **Route Handlers** as a replacement for API routes:
+
+```typescript
+// app/api/posts/route.ts
+import { NextResponse } from "next/server"
+
+export async function GET() {
+  const posts = await db.post.findMany({
+    orderBy: { createdAt: "desc" },
+  })
+
+  return NextResponse.json(posts)
+}
+
+export async function POST(request: Request) {
+  const body = await request.json()
+
+  const post = await db.post.create({
+    data: {
+      title: body.title,
+      content: body.content,
+    },
+  })
+
+  return NextResponse.json(post, { status: 201 })
+}
+```
+
+## Metadata and SEO
+
+The Metadata API makes it easy to define page-level metadata:
+
+```tsx
+import { Metadata } from "next"
+
+export const metadata: Metadata = {
+  title: "My Blog Post",
+  description: "A detailed guide on building web apps.",
+  openGraph: {
+    title: "My Blog Post",
+    description: "A detailed guide on building web apps.",
+    type: "article",
+    images: ["/images/og-image.png"],
+  },
+}
+```
+
+## Conclusion
+
+Next.js 13 with the App Router provides a modern, performant foundation for building web applications. The combination of Server Components, nested layouts, and powerful data fetching patterns makes it an excellent choice for projects of any scale.
+
+Key takeaways:
+
+- **Server Components** reduce bundle size and improve performance
+- **Nested Layouts** enable shared UI that preserves state
+- **Route Handlers** replace API routes with a cleaner API
+- **Tailwind CSS** provides rapid styling with utility classes
+- **Metadata API** simplifies SEO configuration
