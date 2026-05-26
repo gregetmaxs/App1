@@ -34,9 +34,13 @@ class OwnerAuthViewModel @Inject constructor(
 
     private fun checkCurrentSession() {
         viewModelScope.launch {
-            val user = authRepository.getCurrentUser()
-            if (user != null) {
-                _uiState.value = OwnerAuthUiState(isLoggedIn = true, user = user)
+            try {
+                val user = authRepository.getCurrentUser()
+                if (user != null) {
+                    _uiState.value = OwnerAuthUiState(isLoggedIn = true, user = user)
+                }
+            } catch (e: Exception) {
+                _uiState.value = OwnerAuthUiState(error = "Gagal memuat sesi: ${e.message}")
             }
         }
     }
@@ -50,7 +54,9 @@ class OwnerAuthViewModel @Inject constructor(
             _uiState.value = _uiState.value.copy(isLoading = true, error = null)
             authRepository.login(email, password)
                 .onSuccess { user ->
-                    licenseRepository.initDefaultPrices()
+                    try {
+                        licenseRepository.initDefaultPrices()
+                    } catch (_: Exception) { }
                     _uiState.value = OwnerAuthUiState(
                         isLoading = false,
                         isLoggedIn = true,
@@ -72,7 +78,7 @@ class OwnerAuthViewModel @Inject constructor(
 
     fun logout() {
         viewModelScope.launch {
-            authRepository.logout()
+            try { authRepository.logout() } catch (_: Exception) { }
             _uiState.value = OwnerAuthUiState()
         }
     }

@@ -22,12 +22,15 @@ fun OwnerNavHost(
     LaunchedEffect(authState.isLoggedIn) {
         if (authState.isLoggedIn) {
             navController.navigate("main") {
-                popUpTo(Screen.Login.route) { inclusive = true }
+                popUpTo(0) { inclusive = true }
+                launchSingleTop = true
             }
         } else {
-            if (navController.currentBackStackEntry?.destination?.route == "main") {
+            val currentRoute = navController.currentBackStackEntry?.destination?.route
+            if (currentRoute == "main") {
                 navController.navigate(Screen.Login.route) {
-                    popUpTo("main") { inclusive = true }
+                    popUpTo(0) { inclusive = true }
+                    launchSingleTop = true
                 }
             }
         }
@@ -35,7 +38,7 @@ fun OwnerNavHost(
 
     NavHost(
         navController = navController,
-        startDestination = if (authState.isLoggedIn) "main" else Screen.Login.route
+        startDestination = Screen.Login.route
     ) {
         composable(Screen.Login.route) {
             OwnerLoginScreen(
