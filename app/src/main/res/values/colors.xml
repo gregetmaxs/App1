@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="primary">#E53935</color>
-    <color name="primary_dark">#C62828</color>
-    <color name="primary_light">#FFCDD2</color>
-    <color name="accent">#FF5722</color>
+    <color name="primary">#009688</color>
+    <color name="primary_dark">#00796B</color>
+    <color name="primary_light">#B2DFDB</color>
+    <color name="accent">#26A69A</color>
     <color name="white">#FFFFFF</color>
     <color name="black">#000000</color>
     <color name="background">#F5F5F5</color>
@@ -18,8 +18,8 @@
     <color name="info">#2196F3</color>
     <color name="stock_badge">#4CAF50</color>
     <color name="stock_badge_zero">#F44336</color>
-    <color name="chip_selected">#E53935</color>
+    <color name="chip_selected">#009688</color>
     <color name="chip_unselected">#FFFFFF</color>
     <color name="overlay_dark">#80000000</color>
-    <color name="status_bar_color">#C62828</color>
+    <color name="status_bar_color">#00796B</color>
 </resources>

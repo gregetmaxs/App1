@@ -93,7 +93,7 @@ class DashboardFragment : Fragment() {
             val labels = dailySales.map { it.dayLabel }
 
             val dataSet = BarDataSet(entries, "Penjualan").apply {
-                color = Color.parseColor("#E53935")
+                color = Color.parseColor("#009688")
                 valueTextSize = 10f
             }
 
