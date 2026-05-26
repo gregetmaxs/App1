@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/nav_graph"
+    app:startDestination="@id/loginFragment">
+
+    <fragment
+        android:id="@+id/loginFragment"
+        android:name="com.kasirku.pro.ui.LoginFragment"
+        android:label="Login">
+        <action
+            android:id="@+id/action_login_to_dashboard"
+            app:destination="@id/dashboardFragment"
+            app:popUpTo="@id/loginFragment"
+            app:popUpToInclusive="true" />
+        <action
+            android:id="@+id/action_login_to_delivery"
+            app:destination="@id/deliveryFragment"
+            app:popUpTo="@id/loginFragment"
+            app:popUpToInclusive="true" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/nav_dashboard"
+        android:name="com.kasirku.pro.ui.DashboardFragment"
+        android:label="@string/dashboard" />
+
+    <fragment
+        android:id="@+id/dashboardFragment"
+        android:name="com.kasirku.pro.ui.DashboardFragment"
+        android:label="@string/dashboard" />
+
+    <fragment
+        android:id="@+id/nav_pos"
+        android:name="com.kasirku.pro.ui.pos.PosFragment"
+        android:label="@string/pos">
+        <action
+            android:id="@+id/action_pos_to_checkout"
+            app:destination="@id/checkoutFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/checkoutFragment"
+        android:name="com.kasirku.pro.ui.pos.CheckoutFragment"
+        android:label="@string/checkout" />
+
+    <fragment
+        android:id="@+id/nav_items"
+        android:name="com.kasirku.pro.ui.item.ItemListFragment"
+        android:label="@string/items">
+        <action
+            android:id="@+id/action_items_to_addEdit"
+            app:destination="@id/addEditItemFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/addEditItemFragment"
+        android:name="com.kasirku.pro.ui.item.AddEditItemFragment"
+        android:label="@string/add_item">
+        <argument
+            android:name="itemId"
+            app:argType="string"
+            android:defaultValue="" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/nav_transactions"
+        android:name="com.kasirku.pro.ui.transaction.TransactionHistoryFragment"
+        android:label="@string/transactions" />
+
+    <fragment
+        android:id="@+id/nav_more"
+        android:name="com.kasirku.pro.ui.MoreFragment"
+        android:label="Lainnya" />
+
+    <fragment
+        android:id="@+id/reportFragment"
+        android:name="com.kasirku.pro.ui.report.ReportFragment"
+        android:label="@string/report" />
+
+    <fragment
+        android:id="@+id/deliveryFragment"
+        android:name="com.kasirku.pro.ui.DeliveryFragment"
+        android:label="@string/delivery" />
+
+    <fragment
+        android:id="@+id/registerFragment"
+        android:name="com.kasirku.pro.ui.RegisterFragment"
+        android:label="@string/register" />
+
+    <fragment
+        android:id="@+id/roleManagementFragment"
+        android:name="com.kasirku.pro.ui.RoleManagementFragment"
+        android:label="@string/roles" />
+
+    <fragment
+        android:id="@+id/settingsFragment"
+        android:name="com.kasirku.pro.ui.SettingsFragment"
+        android:label="@string/settings" />
+
+</navigation>
