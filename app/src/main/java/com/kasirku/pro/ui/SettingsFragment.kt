@@ -7,7 +7,9 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import com.kasirku.pro.R
 import com.kasirku.pro.databinding.FragmentSettingsBinding
+import com.kasirku.pro.util.ThemeManager
 import com.kasirku.pro.viewmodel.SettingsViewModel
 
 class SettingsFragment : Fragment() {
@@ -31,6 +33,23 @@ class SettingsFragment : Fragment() {
                 binding.etStorePhone.setText(it.storePhone)
                 binding.switchDelivery.isChecked = it.deliveryEnabled
             }
+        }
+
+        val currentTheme = ThemeManager.getThemeMode(requireContext())
+        when (currentTheme) {
+            ThemeManager.THEME_LIGHT -> binding.rbLight.isChecked = true
+            ThemeManager.THEME_DARK -> binding.rbDark.isChecked = true
+            ThemeManager.THEME_SYSTEM -> binding.rbSystem.isChecked = true
+        }
+
+        binding.rgTheme.setOnCheckedChangeListener { _, checkedId ->
+            val mode = when (checkedId) {
+                R.id.rbLight -> ThemeManager.THEME_LIGHT
+                R.id.rbDark -> ThemeManager.THEME_DARK
+                R.id.rbSystem -> ThemeManager.THEME_SYSTEM
+                else -> ThemeManager.THEME_LIGHT
+            }
+            ThemeManager.setThemeMode(requireContext(), mode)
         }
 
         binding.switchDelivery.setOnCheckedChangeListener { _, isChecked ->

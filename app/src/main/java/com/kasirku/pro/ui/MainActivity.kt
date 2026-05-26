@@ -3,11 +3,13 @@ package com.kasirku.pro.ui
 import android.os.Bundle
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.app.AppCompatDelegate
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.setupWithNavController
 import com.kasirku.pro.R
 import com.kasirku.pro.databinding.ActivityMainBinding
 import com.kasirku.pro.util.SessionManager
+import com.kasirku.pro.util.ThemeManager
 
 class MainActivity : AppCompatActivity() {
 
@@ -15,6 +17,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var sessionManager: SessionManager
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        ThemeManager.applyTheme(this)
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
@@ -40,15 +43,7 @@ class MainActivity : AppCompatActivity() {
         }
 
         if (sessionManager.isLoggedIn()) {
-            val graph = navController.navInflater.inflate(R.navigation.nav_graph)
-            if (sessionManager.canAccessPos() || sessionManager.canAccessSettings()) {
-                graph.setStartDestination(R.id.nav_dashboard)
-            } else if (sessionManager.canAccessDelivery()) {
-                graph.setStartDestination(R.id.deliveryFragment)
-            } else {
-                graph.setStartDestination(R.id.nav_dashboard)
-            }
-            navController.graph = graph
+            navController.navigate(R.id.nav_dashboard)
         }
     }
 

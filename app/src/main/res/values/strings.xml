@@ -87,4 +87,8 @@
     <string name="view">Lihat</string>
     <string name="add_category">Tambah Kategori</string>
     <string name="category_name">Nama Kategori</string>
+    <string name="theme_setting">Tema Aplikasi</string>
+    <string name="theme_light">Terang</string>
+    <string name="theme_dark">Gelap</string>
+    <string name="theme_system">Ikuti Sistem</string>
 </resources>
