@@ -1,0 +1,99 @@
+plugins {
+    id 'com.android.application'
+    id 'org.jetbrains.kotlin.android'
+    id 'kotlin-kapt'
+}
+
+// Only apply google-services if google-services.json exists
+if (file("google-services.json").exists()) {
+    apply plugin: 'com.google.gms.google-services'
+}
+
+android {
+    namespace 'com.kasirku.pro'
+    compileSdk 34
+
+    defaultConfig {
+        applicationId "com.kasirku.pro"
+        minSdk 24
+        targetSdk 34
+        versionCode 1
+        versionName "1.0.0"
+
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+
+    kotlinOptions {
+        jvmTarget = '17'
+    }
+
+    buildFeatures {
+        viewBinding true
+    }
+}
+
+dependencies {
+    // Core Android
+    implementation 'androidx.core:core-ktx:1.12.0'
+    implementation 'androidx.appcompat:appcompat:1.6.1'
+    implementation 'com.google.android.material:material:1.11.0'
+    implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
+    implementation 'androidx.recyclerview:recyclerview:1.3.2'
+    implementation 'androidx.cardview:cardview:1.0.0'
+    implementation 'androidx.swiperefreshlayout:swiperefreshlayout:1.1.0'
+
+    // Navigation
+    implementation "androidx.navigation:navigation-fragment-ktx:${rootProject.ext.nav_version}"
+    implementation "androidx.navigation:navigation-ui-ktx:${rootProject.ext.nav_version}"
+
+    // Lifecycle
+    implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:${rootProject.ext.lifecycle_version}"
+    implementation "androidx.lifecycle:lifecycle-livedata-ktx:${rootProject.ext.lifecycle_version}"
+    implementation "androidx.lifecycle:lifecycle-runtime-ktx:${rootProject.ext.lifecycle_version}"
+
+    // Room Database
+    implementation "androidx.room:room-runtime:${rootProject.ext.room_version}"
+    implementation "androidx.room:room-ktx:${rootProject.ext.room_version}"
+    kapt "androidx.room:room-compiler:${rootProject.ext.room_version}"
+
+    // Firebase
+    implementation platform('com.google.firebase:firebase-bom:32.7.1')
+    implementation 'com.google.firebase:firebase-firestore-ktx'
+    implementation 'com.google.firebase:firebase-storage-ktx'
+    implementation 'com.google.firebase:firebase-auth-ktx'
+
+    // Glide for images
+    implementation "com.github.bumptech.glide:glide:${rootProject.ext.glide_version}"
+    kapt "com.github.bumptech.glide:compiler:${rootProject.ext.glide_version}"
+
+    // Coroutines
+    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3'
+    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3'
+
+    // Fragment KTX
+    implementation 'androidx.fragment:fragment-ktx:1.6.2'
+
+    // MPAndroidChart for dashboard
+    implementation 'com.github.PhilJay:MPAndroidChart:v3.1.0'
+
+    // ZXing barcode scanner
+    implementation 'com.journeyapps:zxing-android-embedded:4.3.0'
+    implementation 'com.google.zxing:core:3.5.2'
+
+    // Testing
+    testImplementation 'junit:junit:4.13.2'
+    androidTestImplementation 'androidx.test.ext:junit:1.1.5'
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.1'
+}

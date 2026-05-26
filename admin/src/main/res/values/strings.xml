@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">KasirKu Admin</string>
+    <string name="dashboard">Dashboard</string>
+    <string name="licenses">Lisensi</string>
+    <string name="stores">Toko</string>
+    <string name="total_licenses">Total Lisensi</string>
+    <string name="active_licenses">Lisensi Aktif</string>
+    <string name="total_stores">Total Toko</string>
+    <string name="total_revenue">Total Pendapatan</string>
+    <string name="monthly_revenue">Pendapatan Bulan Ini</string>
+    <string name="generate_license">Buat Lisensi Baru</string>
+    <string name="store_name">Nama Toko</string>
+    <string name="owner_name">Nama Pemilik</string>
+    <string name="owner_email">Email Pemilik</string>
+    <string name="owner_phone">No. HP Pemilik</string>
+    <string name="password">Password</string>
+    <string name="price">Harga Lisensi</string>
+    <string name="address">Alamat</string>
+    <string name="generate">Generate Lisensi</string>
+    <string name="license_key">License Key</string>
+    <string name="status">Status</string>
+    <string name="active">Aktif</string>
+    <string name="inactive">Nonaktif</string>
+    <string name="activate">Aktifkan</string>
+    <string name="deactivate">Nonaktifkan</string>
+    <string name="search">Cari...</string>
+    <string name="no_data">Belum ada data</string>
+    <string name="license_generated">Lisensi berhasil dibuat!</string>
+    <string name="confirm_toggle">Yakin ingin mengubah status lisensi ini?</string>
+    <string name="yes">Ya</string>
+    <string name="no">Tidak</string>
+    <string name="cancel">Batal</string>
+    <string name="save">Simpan</string>
+    <string name="recent_activity">Aktivitas Terbaru</string>
+    <string name="license_sales_chart">Grafik Penjualan Lisensi</string>
+    <string name="login">Login Admin</string>
+    <string name="login_subtitle">Masuk ke panel admin</string>
+    <string name="email">Email</string>
+    <string name="login_button">Login</string>
+    <string name="login_failed">Login gagal</string>
+</resources>
