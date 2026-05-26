@@ -32,9 +32,22 @@ class AuthViewModel(application: Application) : AndroidViewModel(application) {
                 firebaseAuth.signInWithEmailAndPassword(email, password)
                     .addOnSuccessListener { authResult ->
                         val uid = authResult.user?.uid ?: return@addOnSuccessListener
+                        val userEmail = authResult.user?.email ?: email
                         viewModelScope.launch {
-                            val user = userRepository.getUserById(uid)
-                            if (user != null && user.isActive) {
+                            var user = userRepository.getUserById(uid)
+                            if (user == null) {
+                                val ownerRole = roleDao.getRoleById("role_admin")
+                                    ?: Role.createDefaultRoles().first()
+                                user = User(
+                                    id = uid,
+                                    email = userEmail,
+                                    name = userEmail.substringBefore("@"),
+                                    roleId = ownerRole.id,
+                                    roleName = ownerRole.name
+                                )
+                                userRepository.insert(user)
+                            }
+                            if (user.isActive) {
                                 val role = roleDao.getRoleById(user.roleId)
                                 if (role != null) {
                                     sessionManager.saveSession(
@@ -46,7 +59,7 @@ class AuthViewModel(application: Application) : AndroidViewModel(application) {
                                     _loginResult.postValue(Result.failure(Exception("Role tidak ditemukan")))
                                 }
                             } else {
-                                _loginResult.postValue(Result.failure(Exception("Akun tidak aktif atau tidak ditemukan")))
+                                _loginResult.postValue(Result.failure(Exception("Akun tidak aktif")))
                             }
                         }
                     }
