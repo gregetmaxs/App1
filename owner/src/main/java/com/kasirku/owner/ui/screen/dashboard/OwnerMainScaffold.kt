@@ -89,7 +89,7 @@ fun OwnerMainScaffold(
         when (selectedIndex) {
             0 -> OwnerDashboardScreen(modifier = Modifier.padding(paddingValues))
             1 -> StoreScreen(modifier = Modifier.padding(paddingValues))
-            2 -> LicenseScreen(modifier = Modifier.padding(paddingValues))
+            2 -> LicenseScreen(userId = user?.id ?: "", modifier = Modifier.padding(paddingValues))
             3 -> PricingScreen(
                 user = user,
                 onLogout = onLogout,

@@ -12,148 +12,217 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.TrendingUp
-import androidx.compose.material.icons.filled.Receipt
+import androidx.compose.material.icons.automirrored.filled.TrendingUp
 import androidx.compose.material.icons.filled.AttachMoney
+import androidx.compose.material.icons.filled.LocalShipping
+import androidx.compose.material.icons.filled.Receipt
+import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Divider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.kasirku.app.ui.theme.DarkBackground
 import com.kasirku.app.ui.theme.DarkCard
 import com.kasirku.app.ui.theme.SuccessGreen
 import com.kasirku.app.ui.theme.TealPrimary
 import com.kasirku.app.ui.theme.WarningAmber
+import com.kasirku.app.viewmodel.HomeViewModel
+import com.kasirku.core.model.Transaction
 import com.kasirku.core.model.User
+import java.text.NumberFormat
+import java.text.SimpleDateFormat
 import java.util.Calendar
+import java.util.Date
+import java.util.Locale
 
 @Composable
 fun HomeScreen(
     user: User?,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    homeViewModel: HomeViewModel = hiltViewModel()
 ) {
+    val uiState by homeViewModel.uiState.collectAsState()
     val greeting = remember { getGreeting() }
+    val rupiahFormat = remember { NumberFormat.getCurrencyInstance(Locale("id", "ID")) }
 
-    Column(
+    LaunchedEffect(user?.storeId) {
+        user?.storeId?.let { homeViewModel.loadData(it) }
+    }
+
+    LazyColumn(
         modifier = modifier
             .fillMaxSize()
             .background(DarkBackground)
-            .verticalScroll(rememberScrollState())
-            .padding(20.dp)
+            .padding(horizontal = 20.dp)
     ) {
-        // Greeting
-        Text(
-            text = greeting,
-            style = MaterialTheme.typography.headlineMedium,
-            color = Color.White,
-            fontWeight = FontWeight.Bold
-        )
+        item {
+            Spacer(modifier = Modifier.height(20.dp))
 
-        Spacer(modifier = Modifier.height(4.dp))
-
-        Text(
-            text = "Semoga hari ini penuh berkah!",
-            style = MaterialTheme.typography.bodyMedium,
-            color = Color.Gray
-        )
-
-        Spacer(modifier = Modifier.height(24.dp))
-
-        // Summary cards
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(12.dp)
-        ) {
-            SummaryCard(
-                title = "Penjualan Hari Ini",
-                value = "Rp 0",
-                icon = Icons.Default.TrendingUp,
-                iconColor = TealPrimary,
-                modifier = Modifier.weight(1f)
+            Text(
+                text = greeting,
+                style = MaterialTheme.typography.headlineMedium,
+                color = Color.White,
+                fontWeight = FontWeight.Bold
             )
-            SummaryCard(
-                title = "Omset Bulan Ini",
-                value = "Rp 0",
-                icon = Icons.Default.AttachMoney,
-                iconColor = SuccessGreen,
-                modifier = Modifier.weight(1f)
+
+            Spacer(modifier = Modifier.height(4.dp))
+
+            Text(
+                text = "Semoga hari ini penuh berkah!",
+                style = MaterialTheme.typography.bodyMedium,
+                color = Color.Gray
             )
+
+            Spacer(modifier = Modifier.height(24.dp))
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                SummaryCard(
+                    title = "Penjualan Hari Ini",
+                    value = rupiahFormat.format(uiState.todaySales),
+                    icon = Icons.AutoMirrored.Filled.TrendingUp,
+                    iconColor = TealPrimary,
+                    modifier = Modifier.weight(1f)
+                )
+                SummaryCard(
+                    title = "Omset Bulan Ini",
+                    value = rupiahFormat.format(uiState.monthSales),
+                    icon = Icons.Default.AttachMoney,
+                    iconColor = SuccessGreen,
+                    modifier = Modifier.weight(1f)
+                )
+            }
+
+            Spacer(modifier = Modifier.height(12.dp))
+
+            SummaryCard(
+                title = "Jumlah Transaksi Hari Ini",
+                value = "${uiState.todayCount} Transaksi",
+                icon = Icons.Default.Receipt,
+                iconColor = WarningAmber,
+                modifier = Modifier.fillMaxWidth()
+            )
+
+            Spacer(modifier = Modifier.height(24.dp))
+
+            Text(
+                text = "Transaksi Terbaru",
+                style = MaterialTheme.typography.titleMedium,
+                color = Color.White,
+                fontWeight = FontWeight.SemiBold
+            )
+
+            Spacer(modifier = Modifier.height(12.dp))
         }
 
-        Spacer(modifier = Modifier.height(12.dp))
-
-        SummaryCard(
-            title = "Jumlah Transaksi Hari Ini",
-            value = "0 Transaksi",
-            icon = Icons.Default.Receipt,
-            iconColor = WarningAmber,
-            modifier = Modifier.fillMaxWidth()
-        )
-
-        Spacer(modifier = Modifier.height(24.dp))
-
-        // Chart placeholder
-        Card(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(200.dp),
-            shape = RoundedCornerShape(16.dp),
-            colors = CardDefaults.cardColors(containerColor = DarkCard)
-        ) {
-            Box(
-                modifier = Modifier.fillMaxSize(),
-                contentAlignment = Alignment.Center
-            ) {
-                Text(
-                    text = "Grafik Penjualan 7 Hari Terakhir",
-                    color = Color.Gray,
-                    style = MaterialTheme.typography.bodyMedium
-                )
+        if (uiState.recentTransactions.isEmpty()) {
+            item {
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(16.dp),
+                    colors = CardDefaults.cardColors(containerColor = DarkCard)
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(32.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text("Belum ada transaksi", color = Color.Gray)
+                    }
+                }
+            }
+        } else {
+            item {
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(16.dp),
+                    colors = CardDefaults.cardColors(containerColor = DarkCard)
+                ) {
+                    Column(modifier = Modifier.padding(12.dp)) {
+                        uiState.recentTransactions.forEachIndexed { index, tx ->
+                            TransactionRow(tx, rupiahFormat)
+                            if (index < uiState.recentTransactions.lastIndex) {
+                                Divider(color = Color(0xFF333355), modifier = Modifier.padding(vertical = 4.dp))
+                            }
+                        }
+                    }
+                }
             }
         }
 
-        Spacer(modifier = Modifier.height(24.dp))
+        item { Spacer(modifier = Modifier.height(20.dp)) }
+    }
+}
 
-        // Recent transactions
-        Text(
-            text = "Transaksi Terbaru",
-            style = MaterialTheme.typography.titleMedium,
-            color = Color.White,
-            fontWeight = FontWeight.SemiBold
+@Composable
+private fun TransactionRow(tx: Transaction, rupiahFormat: NumberFormat) {
+    val dateFormat = remember { SimpleDateFormat("dd/MM HH:mm", Locale("id")) }
+
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 8.dp, horizontal = 4.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Icon(
+            imageVector = if (tx.deliveryType == "STORE_DELIVERY") Icons.Default.LocalShipping else Icons.Default.ShoppingCart,
+            contentDescription = null,
+            tint = if (tx.deliveryType == "STORE_DELIVERY") WarningAmber else TealPrimary,
+            modifier = Modifier.size(20.dp)
         )
-
-        Spacer(modifier = Modifier.height(12.dp))
-
-        Card(
-            modifier = Modifier.fillMaxWidth(),
-            shape = RoundedCornerShape(16.dp),
-            colors = CardDefaults.cardColors(containerColor = DarkCard)
-        ) {
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(32.dp),
-                contentAlignment = Alignment.Center
-            ) {
-                Text(
-                    text = "Belum ada transaksi",
-                    color = Color.Gray,
-                    style = MaterialTheme.typography.bodyMedium
-                )
-            }
+        Spacer(modifier = Modifier.width(12.dp))
+        Column(modifier = Modifier.weight(1f)) {
+            Text(
+                text = tx.transactionNumber,
+                style = MaterialTheme.typography.bodySmall,
+                color = Color.White,
+                fontWeight = FontWeight.SemiBold,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
+            )
+            Text(
+                text = "${tx.cashierName} • ${if (tx.deliveryType == "STORE_DELIVERY") "Dikirim" else "Ambil Sendiri"}",
+                style = MaterialTheme.typography.labelSmall,
+                color = Color.Gray,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
+            )
+        }
+        Column(horizontalAlignment = Alignment.End) {
+            Text(
+                text = rupiahFormat.format(tx.total),
+                style = MaterialTheme.typography.bodySmall,
+                color = SuccessGreen,
+                fontWeight = FontWeight.SemiBold
+            )
+            Text(
+                text = dateFormat.format(Date(tx.createdAt)),
+                style = MaterialTheme.typography.labelSmall,
+                color = Color.Gray
+            )
         }
     }
 }
@@ -175,25 +244,11 @@ fun SummaryCard(
             modifier = Modifier.padding(16.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Icon(
-                imageVector = icon,
-                contentDescription = null,
-                tint = iconColor,
-                modifier = Modifier.size(28.dp)
-            )
+            Icon(imageVector = icon, contentDescription = null, tint = iconColor, modifier = Modifier.size(28.dp))
             Spacer(modifier = Modifier.width(12.dp))
             Column {
-                Text(
-                    text = title,
-                    style = MaterialTheme.typography.labelSmall,
-                    color = Color.Gray
-                )
-                Text(
-                    text = value,
-                    style = MaterialTheme.typography.titleMedium,
-                    color = Color.White,
-                    fontWeight = FontWeight.Bold
-                )
+                Text(title, style = MaterialTheme.typography.labelSmall, color = Color.Gray)
+                Text(value, style = MaterialTheme.typography.titleSmall, color = Color.White, fontWeight = FontWeight.Bold, maxLines = 1, overflow = TextOverflow.Ellipsis)
             }
         }
     }

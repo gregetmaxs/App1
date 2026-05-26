@@ -1,6 +1,7 @@
 package com.kasirku.app.ui.screen.profile
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -17,16 +18,13 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.Logout
-import androidx.compose.material.icons.filled.Badge
-import androidx.compose.material.icons.filled.CalendarMonth
+import androidx.compose.material.icons.automirrored.filled.ExitToApp
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.Category
-import androidx.compose.material.icons.filled.Groups
-import androidx.compose.material.icons.filled.Inventory
+import androidx.compose.material.icons.filled.Group
+import androidx.compose.material.icons.filled.Inventory2
 import androidx.compose.material.icons.filled.LocalShipping
 import androidx.compose.material.icons.filled.Person
-import androidx.compose.material.icons.filled.Print
-import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
@@ -35,6 +33,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -42,6 +41,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.kasirku.app.ui.theme.DarkBackground
 import com.kasirku.app.ui.theme.DarkCard
 import com.kasirku.app.ui.theme.ErrorRed
@@ -54,6 +54,7 @@ import com.kasirku.core.model.User
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
+import java.util.concurrent.TimeUnit
 
 @Composable
 fun ProfileScreen(
@@ -61,55 +62,53 @@ fun ProfileScreen(
     role: Role?,
     license: License?,
     onLogout: () -> Unit,
+    onNavigateToProducts: () -> Unit,
+    onNavigateToCategories: () -> Unit,
+    onNavigateToEmployees: () -> Unit,
+    onNavigateToSuppliers: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val scrollState = rememberScrollState()
+    val dateFormat = remember { SimpleDateFormat("dd MMM yyyy", Locale("id")) }
+
     Column(
         modifier = modifier
             .fillMaxSize()
             .background(DarkBackground)
-            .verticalScroll(rememberScrollState())
-            .padding(20.dp),
-        horizontalAlignment = Alignment.CenterHorizontally
+            .verticalScroll(scrollState)
+            .padding(20.dp)
     ) {
-        Spacer(modifier = Modifier.height(20.dp))
-
-        // Avatar
-        Box(
-            modifier = Modifier
-                .size(80.dp)
-                .clip(CircleShape)
-                .background(TealPrimary),
-            contentAlignment = Alignment.Center
-        ) {
-            Icon(
-                imageVector = Icons.Default.Person,
-                contentDescription = null,
-                tint = Color.White,
-                modifier = Modifier.size(40.dp)
-            )
+        // Avatar + Info
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Box(
+                modifier = Modifier
+                    .size(56.dp)
+                    .clip(CircleShape)
+                    .background(TealPrimary),
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(Icons.Default.Person, contentDescription = null, tint = Color.White, modifier = Modifier.size(28.dp))
+            }
+            Spacer(modifier = Modifier.width(16.dp))
+            Column {
+                Text(
+                    text = user?.fullName?.ifEmpty { "Boss" } ?: "Boss",
+                    style = MaterialTheme.typography.titleMedium,
+                    color = Color.White,
+                    fontWeight = FontWeight.Bold
+                )
+                Text(
+                    text = user?.email ?: "",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = Color.Gray
+                )
+                Text(
+                    text = role?.name ?: "Admin",
+                    style = MaterialTheme.typography.labelSmall,
+                    color = TealPrimary
+                )
+            }
         }
-
-        Spacer(modifier = Modifier.height(12.dp))
-
-        Text(
-            text = user?.fullName ?: "User",
-            style = MaterialTheme.typography.titleLarge,
-            color = Color.White,
-            fontWeight = FontWeight.Bold
-        )
-
-        Text(
-            text = user?.email ?: "",
-            style = MaterialTheme.typography.bodyMedium,
-            color = Color.Gray
-        )
-
-        Text(
-            text = role?.name ?: "Admin",
-            style = MaterialTheme.typography.labelLarge,
-            color = TealPrimary,
-            fontWeight = FontWeight.SemiBold
-        )
 
         Spacer(modifier = Modifier.height(20.dp))
 
@@ -121,32 +120,23 @@ fun ProfileScreen(
                 colors = CardDefaults.cardColors(containerColor = DarkCard)
             ) {
                 Column(modifier = Modifier.padding(16.dp)) {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Icon(Icons.Default.Badge, contentDescription = null, tint = TealPrimary)
-                        Spacer(modifier = Modifier.width(8.dp))
-                        Text("Info License", color = Color.White, fontWeight = FontWeight.SemiBold)
-                    }
-                    Spacer(modifier = Modifier.height(12.dp))
+                    Text("Informasi License", color = Color.White, fontWeight = FontWeight.SemiBold)
+                    Spacer(modifier = Modifier.height(8.dp))
                     LicenseInfoRow("Key", license.licenseKey)
-                    LicenseInfoRow("Tipe", com.kasirku.core.util.Constants.LICENSE_LABELS[license.type] ?: license.type)
-                    LicenseInfoRow("Status", license.status, if (license.status == "ACTIVE") SuccessGreen else ErrorRed)
-                    if (!license.isPermanent) {
-                        val dateFormat = SimpleDateFormat("dd MMM yyyy", Locale("id"))
-                        LicenseInfoRow("Berlaku sampai", dateFormat.format(Date(license.expiresAt)))
-                        val daysLeft = license.remainingDays
-                        LicenseInfoRow(
-                            "Sisa",
-                            "$daysLeft hari",
-                            if (daysLeft > 7) SuccessGreen else if (daysLeft > 3) WarningAmber else ErrorRed
-                        )
+                    LicenseInfoRow("Tipe", license.type)
+                    LicenseInfoRow("Status", license.status)
+                    if (license.expiresAt > 0) {
+                        LicenseInfoRow("Berlaku Sampai", dateFormat.format(Date(license.expiresAt)))
+                        val daysLeft = TimeUnit.MILLISECONDS.toDays(license.expiresAt - System.currentTimeMillis())
+                        LicenseInfoRow("Sisa Hari", if (daysLeft > 0) "$daysLeft hari" else "Expired")
                     } else {
-                        LicenseInfoRow("Berlaku", "Permanent", SuccessGreen)
+                        LicenseInfoRow("Berlaku Sampai", "Permanent")
                     }
                 }
             }
         }
 
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(20.dp))
 
         // Menu items
         Card(
@@ -154,64 +144,72 @@ fun ProfileScreen(
             shape = RoundedCornerShape(16.dp),
             colors = CardDefaults.cardColors(containerColor = DarkCard)
         ) {
-            Column(modifier = Modifier.padding(8.dp)) {
-                ProfileMenuItem(Icons.Default.Inventory, "Kelola Produk")
-                ProfileMenuItem(Icons.Default.Category, "Kategori")
-                ProfileMenuItem(Icons.Default.Groups, "Karyawan")
-                ProfileMenuItem(Icons.Default.LocalShipping, "Supplier")
-                ProfileMenuItem(Icons.Default.CalendarMonth, "Laporan")
-                ProfileMenuItem(Icons.Default.Print, "Pengaturan Printer")
-                ProfileMenuItem(Icons.Default.Settings, "Pengaturan")
+            Column {
+                ProfileMenuItem(Icons.Default.Inventory2, "Kelola Produk", TealPrimary, onClick = onNavigateToProducts)
+                ProfileMenuItem(Icons.Default.Category, "Kategori", WarningAmber, onClick = onNavigateToCategories)
+                ProfileMenuItem(Icons.Default.Group, "Karyawan", Color(0xFF42A5F5), onClick = onNavigateToEmployees)
+                ProfileMenuItem(Icons.Default.LocalShipping, "Supplier", SuccessGreen, onClick = onNavigateToSuppliers)
             }
         }
 
         Spacer(modifier = Modifier.height(24.dp))
 
-        // Logout button
         Button(
             onClick = onLogout,
             modifier = Modifier
                 .fillMaxWidth()
                 .height(48.dp),
             shape = RoundedCornerShape(16.dp),
-            colors = ButtonDefaults.buttonColors(containerColor = ErrorRed.copy(alpha = 0.2f))
+            colors = ButtonDefaults.buttonColors(containerColor = ErrorRed)
         ) {
-            Icon(
-                Icons.AutoMirrored.Filled.Logout,
-                contentDescription = null,
-                tint = ErrorRed
-            )
+            Icon(Icons.AutoMirrored.Filled.ExitToApp, contentDescription = null, modifier = Modifier.size(18.dp))
             Spacer(modifier = Modifier.width(8.dp))
-            Text("Keluar", color = ErrorRed, fontWeight = FontWeight.SemiBold)
+            Text("Logout")
         }
 
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(20.dp))
     }
 }
 
 @Composable
-private fun LicenseInfoRow(label: String, value: String, valueColor: Color = Color.White) {
+private fun LicenseInfoRow(label: String, value: String) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(vertical = 4.dp),
+            .padding(vertical = 2.dp),
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
-        Text(label, color = Color.Gray, style = MaterialTheme.typography.bodySmall)
-        Text(value, color = valueColor, style = MaterialTheme.typography.bodySmall, fontWeight = FontWeight.SemiBold)
+        Text(label, color = Color.Gray, fontSize = 13.sp)
+        Text(
+            value, color = when {
+                value == "ACTIVE" -> SuccessGreen
+                value == "EXPIRED" || value == "Expired" -> ErrorRed
+                value == "Permanent" -> TealPrimary
+                else -> Color.White
+            },
+            fontSize = 13.sp,
+            fontWeight = FontWeight.SemiBold
+        )
     }
 }
 
 @Composable
-private fun ProfileMenuItem(icon: ImageVector, title: String) {
+private fun ProfileMenuItem(
+    icon: ImageVector,
+    title: String,
+    color: Color,
+    onClick: () -> Unit
+) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 12.dp, vertical = 14.dp),
+            .clickable { onClick() }
+            .padding(horizontal = 16.dp, vertical = 14.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Icon(icon, contentDescription = null, tint = TealPrimary, modifier = Modifier.size(22.dp))
+        Icon(icon, contentDescription = null, tint = color, modifier = Modifier.size(22.dp))
         Spacer(modifier = Modifier.width(16.dp))
-        Text(title, color = Color.White, style = MaterialTheme.typography.bodyMedium)
+        Text(title, color = Color.White, modifier = Modifier.weight(1f))
+        Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, contentDescription = null, tint = Color.Gray, modifier = Modifier.size(20.dp))
     }
 }

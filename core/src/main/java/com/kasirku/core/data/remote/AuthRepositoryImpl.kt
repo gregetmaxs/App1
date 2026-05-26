@@ -50,4 +50,39 @@ class AuthRepositoryImpl @Inject constructor(
     }
 
     override fun isLoggedIn(): Boolean = auth.currentUser != null
+
+    override suspend fun registerEmployee(
+        email: String,
+        password: String,
+        fullName: String,
+        phone: String,
+        nik: String,
+        address: String,
+        roleId: String,
+        storeId: String
+    ): Result<User> = runCatching {
+        val result = auth.createUserWithEmailAndPassword(email, password).await()
+        val firebaseUser = result.user ?: throw Exception("Gagal membuat akun")
+
+        val user = User(
+            id = firebaseUser.uid,
+            email = email,
+            fullName = fullName,
+            phone = phone,
+            nik = nik,
+            address = address,
+            roleId = roleId,
+            storeId = storeId,
+            isActive = true
+        )
+
+        userDao.insert(user.toEntity())
+        firestore.collection(Constants.FIRESTORE_USERS)
+            .document(firebaseUser.uid)
+            .set(user).await()
+
+        // Re-sign in as current admin
+        auth.currentUser?.let { } // Firebase will keep current session after createUser
+        user
+    }
 }

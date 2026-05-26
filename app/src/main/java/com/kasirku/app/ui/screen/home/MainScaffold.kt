@@ -20,6 +20,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
@@ -27,6 +28,12 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
 import com.kasirku.app.ui.screen.history.HistoryScreen
+import com.kasirku.app.ui.screen.master.AddEmployeeScreen
+import com.kasirku.app.ui.screen.master.AddProductScreen
+import com.kasirku.app.ui.screen.master.CategoryScreen
+import com.kasirku.app.ui.screen.master.EmployeeScreen
+import com.kasirku.app.ui.screen.master.ProductListScreen
+import com.kasirku.app.ui.screen.master.SupplierScreen
 import com.kasirku.app.ui.screen.pos.PosScreen
 import com.kasirku.app.ui.screen.profile.ProfileScreen
 import com.kasirku.app.ui.theme.DarkSurface
@@ -56,6 +63,41 @@ fun MainScaffold(
     )
 
     var selectedIndex by rememberSaveable { mutableIntStateOf(0) }
+    var currentSubScreen by rememberSaveable { mutableStateOf<String?>(null) }
+    val storeId = user?.storeId ?: ""
+
+    // If in a sub-screen, show it full-screen (no bottom nav)
+    if (currentSubScreen != null) {
+        when (currentSubScreen) {
+            "products" -> ProductListScreen(
+                storeId = storeId,
+                onBack = { currentSubScreen = null },
+                onAddProduct = { currentSubScreen = "add_product" }
+            )
+            "add_product" -> AddProductScreen(
+                storeId = storeId,
+                onBack = { currentSubScreen = "products" }
+            )
+            "categories" -> CategoryScreen(
+                storeId = storeId,
+                onBack = { currentSubScreen = null }
+            )
+            "employees" -> EmployeeScreen(
+                storeId = storeId,
+                onBack = { currentSubScreen = null },
+                onAddEmployee = { currentSubScreen = "add_employee" }
+            )
+            "add_employee" -> AddEmployeeScreen(
+                storeId = storeId,
+                onBack = { currentSubScreen = "employees" }
+            )
+            "suppliers" -> SupplierScreen(
+                storeId = storeId,
+                onBack = { currentSubScreen = null }
+            )
+        }
+        return
+    }
 
     Scaffold(
         bottomBar = {
@@ -96,9 +138,13 @@ fun MainScaffold(
                 modifier = Modifier.padding(paddingValues)
             )
             1 -> PosScreen(
+                storeId = storeId,
+                userId = user?.id ?: "",
+                userName = user?.fullName?.ifEmpty { "Kasir" } ?: "Kasir",
                 modifier = Modifier.padding(paddingValues)
             )
             2 -> HistoryScreen(
+                storeId = storeId,
                 modifier = Modifier.padding(paddingValues)
             )
             3 -> ProfileScreen(
@@ -106,6 +152,10 @@ fun MainScaffold(
                 role = role,
                 license = license,
                 onLogout = onLogout,
+                onNavigateToProducts = { currentSubScreen = "products" },
+                onNavigateToCategories = { currentSubScreen = "categories" },
+                onNavigateToEmployees = { currentSubScreen = "employees" },
+                onNavigateToSuppliers = { currentSubScreen = "suppliers" },
                 modifier = Modifier.padding(paddingValues)
             )
         }
