@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "116149668520",
+    "project_id": "kasirkupro-62632",
+    "storage_bucket": "kasirkupro-62632.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:116149668520:android:1968f97e7e80be2653d09d",
+        "android_client_info": {
+          "package_name": "com.kasirku.owner"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDnnpeU8cmEoka0dOKVa_x-BVGrAShufPM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
